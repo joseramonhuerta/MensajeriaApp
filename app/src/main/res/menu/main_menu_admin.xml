@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_solicitudes_admin"
+        android:title="Solicitudes"
+        android:icon="@drawable/solicitudes_selector"/>
+
+    <item android:id="@+id/menu_usuarios"
+        android:title="Usuarios"
+        android:icon="@drawable/usuarios_selector"/>
+
+    <item android:id="@+id/menu_perfil_admin"
+        android:title="Perfil"
+        android:icon="@drawable/perfil_selector"/>
+
+
+</menu>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.RegistroUsuariosFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/txtFiltrosUsuarios"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#E7E4E4"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/txtSearchUsuarios"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:background="#fff"
+                android:hint="Busqueda..."
+                tools:context=".SearchAndFilterList"
+
+                />
+
+            <ImageView
+                android:id="@+id/btnBusquedaUsuarios"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="5dp"
+                android:background="#E7E4E4"
+                app:srcCompat="@android:drawable/ic_search_category_default" />
+
+            <ImageView
+                android:id="@+id/btnClearSearchUsuarios"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="5dp"
+                android:background="#E7E4E4"
+                app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+
+
+            <ImageView
+                android:id="@+id/btnAgregarUsuarios"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="5dp"
+                android:background="#E7E4E4"
+                android:padding="2dp"
+                app:srcCompat="@drawable/user_add" />
+
+        </LinearLayout>
+
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/srlContainerUsuarios">
+            <ListView
+                android:id="@+id/listViewUsuarios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:divider="@android:color/transparent"
+                android:layout_below="@+id/txtFiltrosUsuarios"
+                >
+
+            </ListView>
+
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

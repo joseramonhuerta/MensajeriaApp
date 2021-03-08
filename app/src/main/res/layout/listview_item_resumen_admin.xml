@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:background="#fff"
+        app:cardCornerRadius="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:orientation="vertical">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="5dp"
+                    android:background="#E6E1E1"
+                    android:orientation="horizontal">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ivRelojResumenAdmin"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            app:srcCompat="@drawable/calendario2" />
+
+                        <TextView
+                            android:id="@+id/txtHoraResumenAdmin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:layout_weight="1"
+                            android:text="TextView"
+                            android:textColor="#494949"
+                            android:textStyle="bold|italic" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ivStatusResumenAdmin"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            app:srcCompat="@drawable/icono_status_0" />
+
+                        <TextView
+                            android:id="@+id/txtStatusResumenAdmin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginRight="5dp"
+                            android:text="TextView"
+                            android:textColor="#494949"
+                            android:textStyle="bold|italic" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/ivNombreUsuarioResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                app:srcCompat="@drawable/user_1" />
+
+                            <TextView
+                                android:id="@+id/txtNombreUsuarioResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/ivOrigenResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                app:srcCompat="@drawable/ubicacion1" />
+
+                            <TextView
+                                android:id="@+id/txtOrigenResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/ivDestinoResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                app:srcCompat="@drawable/ubicacion2" />
+
+                            <TextView
+                                android:id="@+id/txtDestinoResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/ivDescripcionOrigenResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                app:srcCompat="@drawable/globo" />
+
+                            <TextView
+                                android:id="@+id/txtDescripcionOrigenResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                android:textStyle="italic" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/ivImporteResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:textColor="#000000"
+                                app:srcCompat="@drawable/precio" />
+
+                            <TextView
+                                android:id="@+id/txtImporteResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:digits="2"
+                                android:text="TextView"
+                                android:textColor="#000000" />
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
