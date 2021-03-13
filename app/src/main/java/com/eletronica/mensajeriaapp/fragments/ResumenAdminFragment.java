@@ -1,10 +1,12 @@
 package com.eletronica.mensajeriaapp.fragments;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +77,8 @@ public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_resumen_admin, container, false);
         this.mView = view;
-
+        Activity a = getActivity();
+        if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.srlContainer);
         txtSearch = (EditText) view.findViewById(R.id.txtSearch);
 
@@ -231,6 +235,7 @@ public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout
                             usuario.setId_usuario(Integer.parseInt(jsonObject.getString("id_usuario")));
                             usuario.setNombre(jsonObject.getString("nombre_usuario"));
                             usuario.setUsuario(jsonObject.getString("usuario"));
+                            //usuario.setFoto(Base64.decode(jsonObject.getString("foto"), Base64.DEFAULT));
 
 
                             // Adding subject list object into CustomSubjectNamesList.
@@ -397,6 +402,24 @@ public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout
                             pedido.setId_usuario_mensajero(Integer.parseInt(jsonObject.getString("id_mensajero")));
                             pedido.setNombre_mensajero(jsonObject.getString("nombre_mensajero"));
                             pedido.setCelular_mensajero(jsonObject.getString("celular_mensajero"));
+                            pedido.setPlacas(jsonObject.getString("placas"));
+                            pedido.setUbicacion_latitud(Double.parseDouble(jsonObject.getString("ubicacion_latitud")));
+                            pedido.setUbicacion_longitud(Double.parseDouble(jsonObject.getString("ubicacion_longitud")));
+                            pedido.setCalificacion(Double.parseDouble(jsonObject.getString("calificacion_mensajero")));
+                            pedido.setFoto_mensajero(Base64.decode(jsonObject.getString("foto_mensajero"), Base64.DEFAULT));
+
+                            pedido.setParada1(jsonObject.getString("parada1"));
+                            pedido.setParada_latitud_1(Double.parseDouble(jsonObject.getString("parada_latitud_1")));
+                            pedido.setParada_longitud_1(Double.parseDouble(jsonObject.getString("parada_longitud_1")));
+
+                            pedido.setParada2(jsonObject.getString("parada2"));
+                            pedido.setParada_latitud_2(Double.parseDouble(jsonObject.getString("parada_latitud_2")));
+                            pedido.setParada_longitud_2(Double.parseDouble(jsonObject.getString("parada_longitud_2")));
+
+                            pedido.setParada3(jsonObject.getString("parada3"));
+                            pedido.setParada_latitud_3(Double.parseDouble(jsonObject.getString("parada_latitud_3")));
+                            pedido.setParada_longitud_3(Double.parseDouble(jsonObject.getString("parada_longitud_3")));
+
                             //origen_latitud,origen_longitud,destino_latitud,destino_longitud
                             // Adding subject list object into CustomSubjectNamesList.
                             pedidosList.add(pedido);

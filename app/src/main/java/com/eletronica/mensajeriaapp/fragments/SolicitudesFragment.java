@@ -4,6 +4,7 @@ package com.eletronica.mensajeriaapp.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -13,6 +14,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,6 +98,8 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_solicitudes, container, false);
+        Activity a = getActivity();
+        if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.mContext = getActivity().getApplicationContext();
         listView = (ListView) view.findViewById(R.id.listViewSolicitudes);
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.srlContainer);
@@ -296,6 +300,21 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
                             pedido.setDestino_longitud(Double.parseDouble(jsonObject.getString("destino_longitud")));
                             pedido.setCelular(jsonObject.getString("celular"));
 
+                            pedido.setFoto(Base64.decode(jsonObject.getString("foto"), Base64.DEFAULT));
+
+                            pedido.setParada1(jsonObject.getString("parada1"));
+                            pedido.setParada_latitud_1(Double.parseDouble(jsonObject.getString("parada_latitud_1")));
+                            pedido.setParada_longitud_1(Double.parseDouble(jsonObject.getString("parada_longitud_1")));
+
+                            pedido.setParada2(jsonObject.getString("parada2"));
+                            pedido.setParada_latitud_2(Double.parseDouble(jsonObject.getString("parada_latitud_2")));
+                            pedido.setParada_longitud_2(Double.parseDouble(jsonObject.getString("parada_longitud_2")));
+
+                            pedido.setParada3(jsonObject.getString("parada3"));
+                            pedido.setParada_latitud_3(Double.parseDouble(jsonObject.getString("parada_latitud_3")));
+                            pedido.setParada_longitud_3(Double.parseDouble(jsonObject.getString("parada_longitud_3")));
+                            //pedido.setFoto_mensajero(Base64.decode(jsonObject.getString("foto_mensajero"), Base64.DEFAULT));
+
                             //origen_latitud,origen_longitud,destino_latitud,destino_longitud
                             // Adding subject list object into CustomSubjectNamesList.
                             pedidosList.add(pedido);
@@ -402,6 +421,21 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
                         pedidoEnCurso.setDestino_latitud(Double.parseDouble(jsonObject.getString("destino_latitud")));
                         pedidoEnCurso.setDestino_longitud(Double.parseDouble(jsonObject.getString("destino_longitud")));
                         pedidoEnCurso.setCelular(jsonObject.getString("celular"));
+
+                        pedidoEnCurso.setFoto(Base64.decode(jsonObject.getString("foto"), Base64.DEFAULT));
+
+                        pedidoEnCurso.setParada1(jsonObject.getString("parada1"));
+                        pedidoEnCurso.setParada_latitud_1(Double.parseDouble(jsonObject.getString("parada_latitud_1")));
+                        pedidoEnCurso.setParada_longitud_1(Double.parseDouble(jsonObject.getString("parada_longitud_1")));
+
+                        pedidoEnCurso.setParada2(jsonObject.getString("parada2"));
+                        pedidoEnCurso.setParada_latitud_2(Double.parseDouble(jsonObject.getString("parada_latitud_2")));
+                        pedidoEnCurso.setParada_longitud_2(Double.parseDouble(jsonObject.getString("parada_longitud_2")));
+
+                        pedidoEnCurso.setParada3(jsonObject.getString("parada3"));
+                        pedidoEnCurso.setParada_latitud_3(Double.parseDouble(jsonObject.getString("parada_latitud_3")));
+                        pedidoEnCurso.setParada_longitud_3(Double.parseDouble(jsonObject.getString("parada_longitud_3")));
+
 
                         Intent intencion = new Intent(getActivity(), SolicitudEnCurso.class);
                         intencion.putExtra("pedido", (Serializable)pedidoEnCurso);

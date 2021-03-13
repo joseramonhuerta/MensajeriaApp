@@ -1,11 +1,13 @@
 package com.eletronica.mensajeriaapp.fragments;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -76,7 +78,8 @@ public class RegistroUsuariosFragment extends Fragment implements SwipeRefreshLa
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_registro_usuarios, container, false);
         this.mView = view;
-
+        Activity a = getActivity();
+        if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.srlContainerUsuarios);
         txtSearch = (EditText) view.findViewById(R.id.txtSearchUsuarios);
 
@@ -107,7 +110,7 @@ public class RegistroUsuariosFragment extends Fragment implements SwipeRefreshLa
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity().getApplicationContext(), Registro.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("Rol", 1);
+                intent.putExtra("Rol", 3);
                 startActivity(intent);
 
             }

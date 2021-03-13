@@ -137,6 +137,87 @@
 
                         </LinearLayout>
 
+                        <!-- Paradas -->
+
+                        <LinearLayout
+                            android:id="@+id/layParada1ResumenAdmin"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/ivParada1ResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/icono_stop" />
+
+                            <TextView
+                                android:id="@+id/txtParada1ResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layParada2ResumenAdmin"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/ivParada2ResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/icono_stop" />
+
+                            <TextView
+                                android:id="@+id/txtParada2ResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layParada3ResumenAdmin"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/ivParada3ResumenAdmin"
+                                android:layout_width="22dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/icono_stop" />
+
+                            <TextView
+                                android:id="@+id/txtParada3ResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                />
+
+                        </LinearLayout>
+                        <!-- Fin Paradas-->
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -208,6 +289,24 @@
 
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            >
+
+                            <Button
+                                android:id="@+id/btnDetallesResumenAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="40dp"
+                                android:text="VER DETALLES"
+                                android:background="#D1CECE"
+                                android:textColor="#fff"
+                                android:layout_margin="5dp"
+                                android:textSize="18sp" />
+
+
+                        </LinearLayout>
 
                     </LinearLayout>
 

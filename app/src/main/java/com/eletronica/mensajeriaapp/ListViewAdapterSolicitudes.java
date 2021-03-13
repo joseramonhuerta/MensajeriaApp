@@ -1,15 +1,20 @@
 package com.eletronica.mensajeriaapp;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListViewAdapterSolicitudes extends BaseAdapter{
     List<Pedido> TempPedidosList;
@@ -71,9 +76,21 @@ public class ListViewAdapterSolicitudes extends BaseAdapter{
             viewItem.txtDescripcionOrigen = (TextView)convertView.findViewById(R.id.txtDescripcionOrigen);
             viewItem.txtImporte = (TextView)convertView.findViewById(R.id.txtImporte);
 
+            viewItem.txtParada1 = (TextView)convertView.findViewById(R.id.txtParada1);
+            viewItem.txtParada2 = (TextView)convertView.findViewById(R.id.txtParada2);
+            viewItem.txtParada3 = (TextView)convertView.findViewById(R.id.txtParada3);
 
-            viewItem.ivUsuario = (ImageView) convertView.findViewById(R.id.ivUsuarioDialogoSolicitud);
-            viewItem.ivUsuario.setImageResource(R.drawable.user_2);
+            viewItem.layParada1 = (LinearLayout) convertView.findViewById(R.id.layParada1Solicitudes);
+            viewItem.layParada2 = (LinearLayout) convertView.findViewById(R.id.layParada2Solicitudes);
+            viewItem.layParada3 = (LinearLayout) convertView.findViewById(R.id.layParada3Solicitudes);
+
+            viewItem.ivParada1 = (ImageView) convertView.findViewById(R.id.ivParada1);
+            viewItem.ivParada2 = (ImageView) convertView.findViewById(R.id.ivParada2);
+            viewItem.ivParada3 = (ImageView) convertView.findViewById(R.id.ivParada3);
+
+
+            viewItem.ivUsuario = (CircleImageView) convertView.findViewById(R.id.ivUsuarioDialogoSolicitud);
+
 
             viewItem.ivOrigen = (ImageView) convertView.findViewById(R.id.ivOrigen);
             viewItem.ivOrigen.setImageResource(R.drawable.ubicacion1);
@@ -89,6 +106,7 @@ public class ListViewAdapterSolicitudes extends BaseAdapter{
 
             viewItem.ivEstrella = (ImageView) convertView.findViewById(R.id.ivEstrella);
             viewItem.ivEstrella.setImageResource(R.drawable.estrella);
+
 
 
 
@@ -118,6 +136,42 @@ public class ListViewAdapterSolicitudes extends BaseAdapter{
         String valorFormateado2 = formato2.format(valor2);
         viewItem.txtImporte.setText(valorFormateado2);
 
+        if (TempPedidosList.get(position).getFoto() != null) {
+            byte[] encodeByte = (byte[]) (TempPedidosList.get(position).getFoto());
+            if(encodeByte.length > 0){
+                Bitmap photobmp = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+                viewItem.ivUsuario.setImageBitmap(photobmp);
+
+            }
+        }
+
+        if(TempPedidosList.get(position).getParada1() != "null")
+        {
+            viewItem.layParada1.setVisibility(View.VISIBLE);
+            viewItem.ivParada1.setImageResource(R.drawable.icono_stop);
+            viewItem.txtParada1.setText(TempPedidosList.get(position).getParada1());
+
+        }
+
+
+        if(TempPedidosList.get(position).getParada2() != "null")
+        {
+            viewItem.layParada2.setVisibility(View.VISIBLE);
+            viewItem.ivParada2.setImageResource(R.drawable.icono_stop);
+            viewItem.txtParada2.setText(TempPedidosList.get(position).getParada2());
+
+        }
+
+
+        if(TempPedidosList.get(position).getParada3() != "null")
+        {
+            viewItem.layParada3.setVisibility(View.VISIBLE);
+            viewItem.ivParada3.setImageResource(R.drawable.icono_stop);
+            viewItem.txtParada3.setText(TempPedidosList.get(position).getParada3());
+
+        }
+
+
 
         return convertView;
     }
@@ -134,13 +188,22 @@ class ViewItem
     TextView txtImporte;
 
 
-    ImageView ivUsuario;
+    CircleImageView ivUsuario;
     ImageView ivOrigen;
     ImageView ivDestino;
     ImageView ivDescripcionOrigen;
     ImageView ivImporte;
     ImageView ivEstrella;
 
+    TextView txtParada1;
+    TextView txtParada2;
+    TextView txtParada3;
+    ImageView ivParada1;
+    ImageView ivParada2;
+    ImageView ivParada3;
+    LinearLayout layParada1;
+    LinearLayout layParada2;
+    LinearLayout layParada3;
 
 
 }

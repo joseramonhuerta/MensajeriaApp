@@ -11,7 +11,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
@@ -25,6 +28,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +66,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
     GoogleMap mMap;
@@ -83,6 +89,17 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
     Double destinoLat;
     Double destinoLng;
 
+    String parada1 = null;
+    String parada2 = null;
+    String parada3 = null;
+
+    Double parada1Lat;
+    Double parada1Lng;
+    Double parada2Lat;
+    Double parada2Lng;
+    Double parada3Lat;
+    Double parada3Lng;
+
     TextView txtNombre;
     TextView txtPlacas;
     TextView txtCalificacion;
@@ -92,10 +109,21 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
     TextView txtImporte;
     Button btnFinalizar;
     ImageButton btnLlamar;
+
+    CircleImageView ivImagen;
+
+    LinearLayout layParada1;
+    LinearLayout layParada2;
+    LinearLayout layParada3;
+
+    TextView txtParada1;
+    TextView txtParada2;
+    TextView txtParada3;
     
     Pedido pedido=null;
 
     int id_pedido = 0;
+    int status = 0;
 
     boolean solicitud_activa = true;
 
@@ -109,15 +137,16 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_solicitud_aceptada);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         context = getApplicationContext();
 
         gpsTracker = new GPS_controler(this);
         FragmentManager fm = getSupportFragmentManager();
-        mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
+        mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragmentAceptada");
         if (mapFragment == null) {
             mapFragment = new SupportMapFragment();
             FragmentTransaction ft = fm.beginTransaction();
-            ft.add(R.id.mapaDialogoSolicitudAceptada, mapFragment, "mapFragment");
+            ft.add(R.id.mapaDialogoSolicitudAceptada, mapFragment, "mapFragmentAceptada");
             ft.commit();
             fm.executePendingTransactions();
         }
@@ -136,6 +165,16 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
         txtPlacas = (TextView) findViewById(R.id.txtPlacasSolicitudAceptada);
         progressBar = (ProgressBar) findViewById(R.id.ProgressBarSolicitudAceptada);
 
+        ivImagen = (CircleImageView) findViewById(R.id.ivImagenUsuarioAceptada);
+
+        txtParada1 = (TextView) findViewById(R.id.txtParada1SolicitudAceptada);
+        txtParada2 = (TextView) findViewById(R.id.txtParada2SolicitudAceptada);
+        txtParada3 = (TextView) findViewById(R.id.txtParada3SolicitudAceptada);
+
+        layParada1 = (LinearLayout) findViewById(R.id.layParada1SolicitudAceptada);
+        layParada2 = (LinearLayout) findViewById(R.id.layParada2SolicitudAceptada);
+        layParada3 = (LinearLayout) findViewById(R.id.layParada3SolicitudAceptada);
+
         Intent intent = getIntent();
         pedido = (Pedido) intent.getExtras().getSerializable("pedido");
 
@@ -151,7 +190,48 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
         origenLat = pedido.getOrigen_latitud();
         origenLng = pedido.getOrigen_longitud();
         destinoLat = pedido.getDestino_latitud();
-        destinoLng = pedido.getDestino_longitud() ;
+        destinoLng = pedido.getDestino_longitud();
+
+        parada1 = pedido.getParada1();
+        parada1Lat = pedido.getParada_latitud_1();
+        parada1Lng = pedido.getParada_longitud_1();
+
+        parada2 = pedido.getParada2();
+        parada2Lat = pedido.getParada_latitud_2();
+        parada2Lng = pedido.getParada_longitud_2();
+
+        parada3 = pedido.getParada3();
+        parada3Lat = pedido.getParada_latitud_3();
+        parada3Lng = pedido.getParada_longitud_3();
+
+        status = pedido.getStatus();
+
+
+        if(!parada1.equals("null")){
+            layParada1.setVisibility(View.VISIBLE);
+            txtParada1.setText(parada1);
+        }
+
+        if(!parada2.equals("null")){
+            layParada2.setVisibility(View.VISIBLE);
+            txtParada2.setText(parada2);
+        }
+
+        if(!parada3.equals("null")){
+            layParada3.setVisibility(View.VISIBLE);
+            txtParada3.setText(parada3);
+        }
+
+        byte[] foto = pedido.getFoto_mensajero();
+
+        if (foto != null) {
+            byte[] encodeByte = (byte[]) (foto);
+            if(encodeByte.length > 0){
+                Bitmap photobmp = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+                ivImagen.setImageBitmap(photobmp);
+
+            }
+        }
 
         btnFinalizar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,17 +252,17 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
                 }else {
                     Toast.makeText(getApplicationContext(), "No existe un numero de celular", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
-
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                if(solicitud_activa)
+        if(status == 1) {
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    //if(solicitud_activa)
                     verificarStatus();
-                handler.postDelayed(this, delay);
-            }
-        }, delay);
+                    handler.postDelayed(this, delay);
+                }
+            }, delay);
+        }
     }
 
     private void verificarStatus(){
@@ -198,57 +278,36 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
                     try {
                         jsonObject = jsonArray.getJSONObject(0);
                         boolean success =  Boolean.parseBoolean(jsonObject.optString("sucess"));
-                        int status = Integer.parseInt(jsonObject.optString("status"));
+                        int status_solicitud = Integer.parseInt(jsonObject.optString("status"));
                         double ubicacion_lat = Double.parseDouble(jsonObject.optString("ubicacion_latitud"));
                         double ubicacion_lng = Double.parseDouble(jsonObject.optString("ubicacion_longitud"));
 
                         LatLng driver = new LatLng(ubicacion_lat,ubicacion_lng);
 
+                        status = status_solicitud;
                         setLocationDriver(driver);
-                        if(success){
+                        /*if(success){
                             if(status == 3){
                                 solicitud_activa = false;
                                 String msg = jsonObject.optString("msg");
-
                                 AlertDialog.Builder builder= new AlertDialog.Builder(SolicitudAceptada.this);
-
                                 builder.setMessage(msg);
                                 builder.setTitle(pedido.getOrigen().toString()+" - "+pedido.getDestino().toString());
                                 builder.setCancelable(false);
-
                                 builder.setPositiveButton("Volver a las solicitudes", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         finish();
-
-
                                     }
                                 });
-
-
-
-
                                 AlertDialog alertDialog = builder.create();
                                 alertDialog.show();
-
-
-
                             }
-
-
-                        }
-
-
-
+                        }*/
                     } catch (JSONException e) {
-                        //e.printStackTrace();
+                        e.printStackTrace();
                         //Toast.makeText(getApplicationContext(),"Error: " + e.toString(), Toast.LENGTH_SHORT).show();
-
                     }
-
-
-
-
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -275,7 +334,6 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
         LatLng we = new LatLng(23.2340033,-106.4271412);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(we,15));
 
-        //setLocationDriver(gpsTracker.getLocation());
     }
 
     @Override
@@ -300,13 +358,40 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
             //mMap.setMyLocationEnabled(true);
         }
 
+        LatLng we = new LatLng(23.2340033,-106.4271412);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(we,15));
+
         //23.2336172,origen_longitud=106.4153152,destino_latitud=23.2313368,destino_longitud=106.4072385
         //map.setMyLocationEnabled(true);
-        setUpMap();
+        //setUpMap();
 
 
         LatLng marcador1 = new LatLng(origenLat, origenLng);
         LatLng marcador2 = new LatLng(destinoLat, destinoLng);
+
+        if(!parada1.equals("null")){
+            LatLng stop1 = new LatLng(parada1Lat, parada1Lng);
+            mMap.addMarker(new MarkerOptions()
+                    .position(stop1)
+                    .title(parada1)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        }
+
+        if(!parada2.equals("null")){
+            LatLng stop2 = new LatLng(parada2Lat, parada2Lng);
+            mMap.addMarker(new MarkerOptions()
+                    .position(stop2)
+                    .title(parada2)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        }
+
+        if(!parada3.equals("null")){
+            LatLng stop3 = new LatLng(parada3Lat, parada3Lng);
+            mMap.addMarker(new MarkerOptions()
+                    .position(stop3)
+                    .title(parada3)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        }
 
         mMap.addMarker(new MarkerOptions()
                 .position(marcador1)
@@ -348,21 +433,37 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void setLocationDriver(LatLng location){
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
+        if(status == 1){
+            if (mCurrLocationMarker != null) {
+                mCurrLocationMarker.remove();
+            }
+            //Place current location marker
+            LatLng latLng = location;
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_repartidor));
+            mCurrLocationMarker = mMap.addMarker(markerOptions);
         }
-        //Place current location marker
-        LatLng latLng = location;
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_repartidor));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
     }
     public void ObtenerRuta(String latInicial, String lngInicial, String latFinal, String lngFinal){
 
         String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + latInicial + "," + lngInicial + "&destination=" + latFinal + "," + lngFinal + "&key=AIzaSyBxcLXHYB8gQW5Xg112ivn6Gko3YyOveKU&mode=drive";
 
+        String wayPoints = "";
 
+        if(!parada1.equals("null")){
+            wayPoints = wayPoints + (wayPoints.equals("") ? "" : "%7C") + parada1Lat + "," + parada1Lng;
+        }
+
+        if(!parada2.equals("null")){
+            wayPoints = wayPoints + (wayPoints.equals("") ? "" : "%7C") + parada2Lat + "," + parada2Lng;
+        }
+
+        if(!parada3.equals("null")){
+            wayPoints = wayPoints + (wayPoints.equals("") ? "" : "%7C") + parada3Lat + "," + parada3Lng;
+        }
+        wayPoints = "&waypoints=" + wayPoints;
+        url = url + wayPoints;
 
         jsonObjectRequest=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -598,7 +699,7 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
     @Override
     public void onLocationChanged(Location location)
     {
-        //setLocationDriver(location);
+
 
 
     }

@@ -1,7 +1,9 @@
 package com.eletronica.mensajeriaapp.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -68,6 +70,10 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ingresos, container, false);
+        Activity a = getActivity();
+        if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+
         this.mContext = getActivity().getApplicationContext();
         listView = (ListView) view.findViewById(R.id.listViewResumen);
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.srlContainerResumen);

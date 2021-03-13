@@ -1,6 +1,8 @@
 package com.eletronica.mensajeriaapp.fragments;
 
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -36,18 +38,32 @@ public class PerfilFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_perfil, container, false);
-
+        Activity a = getActivity();
+        if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         TextView txtNombreUsuario = (TextView) view.findViewById(R.id.txtNombrePerfil);
         TextView txtUsuario = (TextView) view.findViewById(R.id.txtUsuarioPerfil);
         TextView txtPerfil = (TextView) view.findViewById(R.id.txtPerfil);
         LinearLayout btnSalir = (LinearLayout) view.findViewById(R.id.laySalir);
-        ImageView ivFoto = (ImageView) view.findViewById(R.id.imageViewPerfil);
+        //ImageView ivFoto = (ImageView) view.findViewById(R.id.imageViewPerfil);
+       CircleImageView ivFoto = (CircleImageView) view.findViewById(R.id.imageViewPerfil);
 
         GlobalVariables vg = new GlobalVariables();
 
         txtNombreUsuario.setText(vg.nombre);
         txtUsuario.setText(vg.usuario);
         txtPerfil.setText(vg.descripcion_rol);
+
+        if (vg.foto != null) {
+            byte[] encodeByte = (byte[]) (vg.foto);
+            if(encodeByte.length > 0){
+                photobmp = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+                ivFoto.setImageBitmap(photobmp);
+
+            }
+        }else
+        {
+            ivFoto.setImageResource(R.drawable.user_2);
+        }
 
         btnSalir.setOnClickListener(new View.OnClickListener() {
             @Override

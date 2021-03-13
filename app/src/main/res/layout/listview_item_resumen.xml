@@ -114,6 +114,87 @@
 
                         </LinearLayout>
 
+                        <!-- Paradas -->
+
+                        <LinearLayout
+                            android:id="@+id/layParada1ResumenCustomer"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/ivParada1ResumenCustomer"
+                                android:layout_width="22dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/icono_stop" />
+
+                            <TextView
+                                android:id="@+id/txtParada1ResumenCustomer"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layParada2ResumenCustomer"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/ivParada2ResumenCustomer"
+                                android:layout_width="22dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/icono_stop" />
+
+                            <TextView
+                                android:id="@+id/txtParada2ResumenCustomer"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layParada3ResumenCustomer"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="2dp"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/ivParada3ResumenCustomer"
+                                android:layout_width="22dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/icono_stop" />
+
+                            <TextView
+                                android:id="@+id/txtParada3ResumenCustomer"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_weight="1"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                />
+
+                        </LinearLayout>
+                        <!-- Fin Paradas-->
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"

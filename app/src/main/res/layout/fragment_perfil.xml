@@ -24,6 +24,7 @@
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/icono_mensajeria2" />
 
+
         </LinearLayout>
 
         <LinearLayout
@@ -67,11 +68,20 @@
                 android:layout_gravity="center_vertical"
                 android:orientation="vertical">
 
+                <de.hdodenhof.circleimageview.CircleImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/imageViewPerfil"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
+
+                <!--
                 <ImageView
                     android:id="@+id/imageViewPerfil"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/log" />
+                    -->
             </LinearLayout>
 
             <LinearLayout

@@ -126,6 +126,18 @@ public class ListViewAdapterResumenCustomer extends BaseAdapter{
             viewItemP.btnCancelar = (Button) convertView.findViewById(R.id.btnCancelarResumenCustomer);
             viewItemP.btnDetalles = (Button) convertView.findViewById(R.id.btnDetallesResumenCustomer);
 
+            viewItemP.txtParada1 = (TextView)convertView.findViewById(R.id.txtParada1ResumenCustomer);
+            viewItemP.txtParada2 = (TextView)convertView.findViewById(R.id.txtParada2ResumenCustomer);
+            viewItemP.txtParada3 = (TextView)convertView.findViewById(R.id.txtParada3ResumenCustomer);
+
+            viewItemP.layParada1 = (LinearLayout) convertView.findViewById(R.id.layParada1ResumenCustomer);
+            viewItemP.layParada2 = (LinearLayout) convertView.findViewById(R.id.layParada2ResumenCustomer);
+            viewItemP.layParada3 = (LinearLayout) convertView.findViewById(R.id.layParada3ResumenCustomer);
+
+            viewItemP.ivParada1 = (ImageView) convertView.findViewById(R.id.ivParada1ResumenCustomer);
+            viewItemP.ivParada2 = (ImageView) convertView.findViewById(R.id.ivParada2ResumenCustomer);
+            viewItemP.ivParada3 = (ImageView) convertView.findViewById(R.id.ivParada3ResumenCustomer);
+
 
             viewItemP.ivReloj.setImageResource(R.drawable.calendario2);
             viewItemP.ivOrigen.setImageResource(R.drawable.icono_origen);
@@ -150,9 +162,8 @@ public class ListViewAdapterResumenCustomer extends BaseAdapter{
         if(TempPedidosList.get(position).getStatus() == 0 || TempPedidosList.get(position).getStatus() == 1)
             viewItemP.layBotones.setVisibility(View.VISIBLE);
 
-        if(TempPedidosList.get(position).getStatus() == 1)
+        if(TempPedidosList.get(position).getStatus() > 0 )
             viewItemP.btnDetalles.setVisibility(View.VISIBLE);
-
 
         if(TempPedidosList.get(position).getStatus() == 0)
             viewItemP.ivStatus.setImageResource(R.drawable.icono_status_0);
@@ -247,6 +258,32 @@ public class ListViewAdapterResumenCustomer extends BaseAdapter{
             }
         });
 
+        if(TempPedidosList.get(position).getParada1() != "null")
+        {
+            viewItemP.layParada1.setVisibility(View.VISIBLE);
+            viewItemP.ivParada1.setImageResource(R.drawable.icono_stop);
+            viewItemP.txtParada1.setText(TempPedidosList.get(position).getParada1());
+
+        }
+
+
+        if(TempPedidosList.get(position).getParada2() != "null")
+        {
+            viewItemP.layParada2.setVisibility(View.VISIBLE);
+            viewItemP.ivParada2.setImageResource(R.drawable.icono_stop);
+            viewItemP.txtParada2.setText(TempPedidosList.get(position).getParada2());
+
+        }
+
+
+        if(TempPedidosList.get(position).getParada3() != "null")
+        {
+            viewItemP.layParada3.setVisibility(View.VISIBLE);
+            viewItemP.ivParada3.setImageResource(R.drawable.icono_stop);
+            viewItemP.txtParada3.setText(TempPedidosList.get(position).getParada3());
+
+        }
+
         return convertView;
     }
 }
@@ -277,6 +314,16 @@ class ViewItemPedidoCustomer
 
     LinearLayout layMensajero;
     LinearLayout layBotones;
+
+    TextView txtParada1;
+    TextView txtParada2;
+    TextView txtParada3;
+    ImageView ivParada1;
+    ImageView ivParada2;
+    ImageView ivParada3;
+    LinearLayout layParada1;
+    LinearLayout layParada2;
+    LinearLayout layParada3;
 
 }
 

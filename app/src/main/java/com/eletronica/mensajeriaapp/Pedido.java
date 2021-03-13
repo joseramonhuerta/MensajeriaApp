@@ -27,6 +27,90 @@ public class Pedido implements Serializable {
     private String placas;
     private double ubicacion_latitud;
     private double ubicacion_longitud;
+    private byte[] foto;
+    private byte[] foto_mensajero;
+
+    private String parada1;
+    private String parada2;
+    private String parada3;
+    private double parada_latitud_1;
+    private double parada_longitud_1;
+    private double parada_latitud_2;
+    private double parada_longitud_2;
+    private double parada_latitud_3;
+    private double parada_longitud_3;
+
+    public String getParada1() {
+        return parada1;
+    }
+
+    public void setParada1(String parada1) {
+        this.parada1 = parada1;
+    }
+
+    public String getParada2() {
+        return parada2;
+    }
+
+    public void setParada2(String parada2) {
+        this.parada2 = parada2;
+    }
+
+    public String getParada3() {
+        return parada3;
+    }
+
+    public void setParada3(String parada3) {
+        this.parada3 = parada3;
+    }
+
+    public double getParada_latitud_1() {
+        return parada_latitud_1;
+    }
+
+    public void setParada_latitud_1(double parada_latitud_1) {
+        this.parada_latitud_1 = parada_latitud_1;
+    }
+
+    public double getParada_longitud_1() {
+        return parada_longitud_1;
+    }
+
+    public void setParada_longitud_1(double parada_longitud_1) {
+        this.parada_longitud_1 = parada_longitud_1;
+    }
+
+    public double getParada_latitud_2() {
+        return parada_latitud_2;
+    }
+
+    public void setParada_latitud_2(double parada_latitud_2) {
+        this.parada_latitud_2 = parada_latitud_2;
+    }
+
+    public double getParada_longitud_2() {
+        return parada_longitud_2;
+    }
+
+    public void setParada_longitud_2(double parada_longitud_2) {
+        this.parada_longitud_2 = parada_longitud_2;
+    }
+
+    public double getParada_latitud_3() {
+        return parada_latitud_3;
+    }
+
+    public void setParada_latitud_3(double parada_latitud_3) {
+        this.parada_latitud_3 = parada_latitud_3;
+    }
+
+    public double getParada_longitud_3() {
+        return parada_longitud_3;
+    }
+
+    public void setParada_longitud_3(double parada_longitud_3) {
+        this.parada_longitud_3 = parada_longitud_3;
+    }
 
     public double getCalificacion_mensajero() {
         return calificacion_mensajero;
@@ -248,5 +332,21 @@ public class Pedido implements Serializable {
 
     public void setHora(String hora) {
         this.hora = hora;
+    }
+
+    public byte[] getFoto() {
+        return foto;
+    }
+
+    public void setFoto(byte[] foto) {
+        this.foto = foto;
+    }
+
+    public byte[] getFoto_mensajero() {
+        return foto_mensajero;
+    }
+
+    public void setFoto_mensajero(byte[] foto_mensajero) {
+        this.foto_mensajero = foto_mensajero;
     }
 }

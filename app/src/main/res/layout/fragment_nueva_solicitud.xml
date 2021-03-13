@@ -71,20 +71,143 @@
                     android:orientation="vertical"
                     android:padding="10dp">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/txtDireccionOrigen"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Dirección Origen">
+                        android:orientation="horizontal"
+                        >
 
-                        <com.google.android.material.textfield.TextInputEditText
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/txtDireccionOrigen"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:drawableLeft="@drawable/icono_origen"
-                            android:inputType="text" />
+                            android:layout_weight="1"
+                            android:hint="Dirección Origen">
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/icono_origen"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <ImageView
+                            android:id="@+id/btnAgregarParada"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="2dp"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/icono_agregar" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layParada1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        >
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/txtDireccionParada1"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Parada 1"
+                           >
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal|center_vertical"
+                                android:scaleType="fitCenter"
+                                android:drawableLeft="@drawable/icono_stop"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <ImageView
+                            android:id="@+id/btnEliminarParada1"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:layout_marginLeft="2dp"
+                            android:scaleType="fitCenter"
+
+                            android:src="@drawable/icono_delete" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layParada2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        >
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/txtDireccionParada2"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Parada 2">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/icono_stop"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <ImageView
+                            android:id="@+id/btnEliminarParada2"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="2dp"
+                            android:scaleType="fitCenter"
+                            android:layout_gravity="center_horizontal|center_vertical"
+
+                            android:src="@drawable/icono_delete" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layParada3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        >
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/txtDireccionParada3"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Parada 3">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/icono_stop"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <ImageView
+                            android:id="@+id/btnEliminarParada3"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="2dp"
+                            android:scaleType="fitCenter"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:src="@drawable/icono_delete" />
+                    </LinearLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/txtDireccionDestino"

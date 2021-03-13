@@ -1,9 +1,12 @@
 package com.eletronica.mensajeriaapp.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,6 +72,8 @@ public class ResumenFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_resumen, container, false);
+        Activity a = getActivity();
+        if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.mContext = getActivity().getApplicationContext();
         listView = (ListView) view.findViewById(R.id.listViewResumenCustomer);
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.srlContainerResumenCustomer);
@@ -259,6 +264,19 @@ public class ResumenFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 pedido.setUbicacion_latitud(Double.parseDouble(jsonObject.getString("ubicacion_latitud")));
                                 pedido.setUbicacion_longitud(Double.parseDouble(jsonObject.getString("ubicacion_longitud")));
                                 pedido.setCalificacion(Double.parseDouble(jsonObject.getString("calificacion_mensajero")));
+                                pedido.setFoto_mensajero(Base64.decode(jsonObject.getString("foto_mensajero"), Base64.DEFAULT));
+
+                                pedido.setParada1(jsonObject.getString("parada1"));
+                                pedido.setParada_latitud_1(Double.parseDouble(jsonObject.getString("parada_latitud_1")));
+                                pedido.setParada_longitud_1(Double.parseDouble(jsonObject.getString("parada_longitud_1")));
+
+                                pedido.setParada2(jsonObject.getString("parada2"));
+                                pedido.setParada_latitud_2(Double.parseDouble(jsonObject.getString("parada_latitud_2")));
+                                pedido.setParada_longitud_2(Double.parseDouble(jsonObject.getString("parada_longitud_2")));
+
+                                pedido.setParada3(jsonObject.getString("parada3"));
+                                pedido.setParada_latitud_3(Double.parseDouble(jsonObject.getString("parada_latitud_3")));
+                                pedido.setParada_longitud_3(Double.parseDouble(jsonObject.getString("parada_longitud_3")));
                                 //origen_latitud,origen_longitud,destino_latitud,destino_longitud
                                 // Adding subject list object into CustomSubjectNamesList.
                                 pedidosList.add(pedido);

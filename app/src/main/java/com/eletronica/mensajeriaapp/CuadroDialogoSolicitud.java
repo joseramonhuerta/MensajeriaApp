@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +56,8 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static java.lang.Integer.parseInt;
 
 public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReadyCallback, Response.Listener<JSONObject>, Response.ErrorListener {
@@ -67,6 +72,16 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
     Double origen_longitud;
     Double destino_latitud;
     Double destino_longitud;
+
+    String parada1 = null;
+    String parada2 = null;
+    String parada3 = null;
+    Double parada1_latitud;
+    Double parada1_longitud;
+    Double parada2_latitud;
+    Double parada2_longitud;
+    Double parada3_latitud;
+    Double parada3_longitud;
 
     public static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
@@ -119,18 +134,28 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         Double calificacion = pedido.getCalificacion();
         String origen = pedido.getOrigen();
         String destino = pedido.getDestino();
+        parada1 = pedido.getParada1();
+        parada2 = pedido.getParada2();
+        parada3 = pedido.getParada3();
         String descripcion_origen = pedido.getDescripcion_origen();
         Double importe = pedido.getImporte();
+        byte[] foto = pedido.getFoto();
 
         origen_latitud = pedido.getOrigen_latitud();
         origen_longitud = pedido.getOrigen_longitud();
         destino_latitud = pedido.getDestino_latitud();
         destino_longitud = pedido.getDestino_longitud();
 
+        parada1_latitud = pedido.getParada_latitud_1();
+        parada1_longitud = pedido.getParada_longitud_1();
+        parada2_latitud = pedido.getParada_latitud_2();
+        parada2_longitud = pedido.getParada_longitud_2();
+        parada3_latitud = pedido.getParada_latitud_3();
+        parada3_longitud = pedido.getParada_longitud_3();
+
         dialogo = getDialog();
         dialogo.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialogo
-                .setCancelable(false);
+        dialogo.setCancelable(false);
         dialogo.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         TextView txtNombre = (TextView) v.findViewById(R.id.txtNombreUsuarioDialogoSolicitud);
@@ -139,9 +164,18 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         TextView txtDestino = (TextView) v.findViewById(R.id.txtDestinoDialogoSolicitud);
         TextView txtDescripcionOrigen = (TextView) v.findViewById(R.id.txtDescripcionOrigenDialogoSolicitud);
         TextView txtImporte = (TextView) v.findViewById(R.id.txtImporteDialogoSolicitud);
+        CircleImageView ivImagen = (CircleImageView) v.findViewById(R.id.ivUsuarioDialogo);
         final Button btnAceptar = (Button) v.findViewById(R.id.btnAceptarDialogoSolicitud);
         final Button btnSalir = (Button) v.findViewById(R.id.btnSalirDialogoSolicitud);
-        //mMapView = (MapView) v.findViewById(R.id.mapaDialogoSolicitud);
+
+        TextView txtParada1 = (TextView) v.findViewById(R.id.txtParada1DialogoSolicitud);
+        TextView txtParada2 = (TextView) v.findViewById(R.id.txtParada2DialogoSolicitud);
+        TextView txtParada3 = (TextView) v.findViewById(R.id.txtParada3DialogoSolicitud);
+
+        LinearLayout layParada1 = (LinearLayout) v.findViewById(R.id.layParada1DialogoSolicitud);
+        LinearLayout layParada2 = (LinearLayout) v.findViewById(R.id.layParada2DialogoSolicitud);
+        LinearLayout layParada3 = (LinearLayout) v.findViewById(R.id.layParada3DialogoSolicitud);
+
         progressBar = (ProgressBar) v.findViewById(R.id.ProgressBarSolicitud);
         txtNombre.setText(nombre);
         DecimalFormat formato1 = new DecimalFormat("#,###.00");
@@ -152,8 +186,33 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         txtDestino.setText(destino);
         txtDescripcionOrigen.setText(descripcion_origen);
 
+        if(parada1 != "null"){
+            layParada1.setVisibility(View.VISIBLE);
+            txtParada1.setText(parada1);
+        }
+
+        if(parada2 != "null"){
+            layParada2.setVisibility(View.VISIBLE);
+            txtParada2.setText(parada2);
+        }
+
+        if(parada3 != "null"){
+            layParada3.setVisibility(View.VISIBLE);
+            txtParada3.setText(parada3);
+        }
+
         String valorFormateado2 = formato1.format(importe);
         txtImporte.setText(valorFormateado2);
+
+        if (foto != null) {
+            byte[] encodeByte = (byte[]) (foto);
+            if(encodeByte.length > 0){
+                Bitmap photobmp = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+                ivImagen.setImageBitmap(photobmp);
+
+            }
+        }
+
 
         btnSalir.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -298,25 +357,49 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-       // if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-            //    != PackageManager.PERMISSION_GRANTED
-            //    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-            //    != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            //return;
-      //  }
+        // if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+        //    != PackageManager.PERMISSION_GRANTED
+        //    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+        //    != PackageManager.PERMISSION_GRANTED) {
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+        //return;
+        //  }
         //23.2336172,origen_longitud=106.4153152,destino_latitud=23.2313368,destino_longitud=106.4072385
         //map.setMyLocationEnabled(true);
         setUpMap();
 
         LatLng marcador1 = new LatLng(origen_latitud, origen_longitud);
         LatLng marcador2 = new LatLng(destino_latitud, destino_longitud);
+
+        if(parada1 != "null"){
+            LatLng stop1 = new LatLng(parada1_latitud, parada1_longitud);
+            mMap.addMarker(new MarkerOptions()
+                    .position(stop1)
+                    .title(parada1)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        }
+
+        if(parada2 != "null"){
+            LatLng stop2 = new LatLng(parada2_latitud, parada2_longitud);
+            mMap.addMarker(new MarkerOptions()
+                    .position(stop2)
+                    .title(parada2)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        }
+
+        if(parada3 != "null"){
+            LatLng stop3 = new LatLng(parada3_latitud, parada3_longitud);
+            mMap.addMarker(new MarkerOptions()
+                    .position(stop3)
+                    .title(parada3)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        }
 
         mMap.addMarker(new MarkerOptions()
                 .position(marcador1)
