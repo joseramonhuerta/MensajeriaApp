@@ -51,4 +51,8 @@ public class Principal extends AppCompatActivity {
                 .commit();
         itemSelected = item;
     }
+
+    @Override public void onBackPressed() {
+
+    }
 }

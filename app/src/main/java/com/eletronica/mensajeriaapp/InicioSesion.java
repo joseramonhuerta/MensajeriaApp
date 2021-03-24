@@ -65,11 +65,56 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
         txtPassword = (TextInputLayout) findViewById(R.id.txtPassword);
         progressBar = (ProgressBar) findViewById(R.id.ProgressBar);
 
-        prefs = getApplicationContext().getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
-        String user = prefs.getString("user", "");
-        String pass = prefs.getString("pass", "");
-        txtUsuario.getEditText().setText(user);
-        txtPassword.getEditText().setText(pass);
+        prefs = getApplicationContext().getSharedPreferences("MisPreferenciasMensajeria", Context.MODE_PRIVATE);
+
+
+
+        //String user = prefs.getString("user", "");
+        //String pass = prefs.getString("pass", "");
+        //txtUsuario.getEditText().setText(user);
+        //txtPassword.getEditText().setText(pass);
+
+        if(prefs.contains("user")){
+            User usuario = new User();
+
+            String user = prefs.getString("user", "");
+            String nombre = prefs.getString("nombre", "");
+            int id_user = prefs.getInt("id_usuario", 0);
+            int rol = prefs.getInt("rol", 0);
+            String descripcion_rol = prefs.getString("descripcion_rol", "");
+
+            usuario.setUsuario(user);
+            usuario.setNombre(nombre);
+            usuario.setId_usuario(id_user);
+            usuario.setRol(rol);
+            usuario.setDescripcion_rol(descripcion_rol);
+
+            GlobalVariables variablesGlobales = new GlobalVariables();
+            variablesGlobales.id_usuario = id_user;
+            variablesGlobales.nombre = nombre;
+            variablesGlobales.usuario = user;
+            variablesGlobales.rol = rol;
+            variablesGlobales.descripcion_rol = descripcion_rol;
+
+            Intent intencion;
+
+            if(rol == 1){
+                intencion = new Intent(InicioSesion.this, Principal.class);
+            }else if(rol == 2){
+                intencion = new Intent(InicioSesion.this, PrincipalCustomer.class);
+            }else if(rol == 3){
+                intencion = new Intent(InicioSesion.this, PrincipalAdmin.class);
+            }else{
+                intencion = new Intent(InicioSesion.this, PrincipalCustomer.class);
+            }
+
+            intencion.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intencion);
+
+        }
+
+
+
 
         btnRegristro.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,11 +168,6 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
     }
 
     private void iniciarSesion(){
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("user", txtUsuario.getEditText().getText().toString());
-        editor.putString("pass", txtPassword.getEditText().getText().toString());
-
-        editor.commit();
 
         progressBar.setVisibility(View.VISIBLE);
         GlobalVariables variablesGlobales = new GlobalVariables();
@@ -173,6 +213,16 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             Toast.makeText(InicioSesion.this,"Error: " + e.toString(), Toast.LENGTH_SHORT).show();
 
         }
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("user", txtUsuario.getEditText().getText().toString());
+        editor.putString("pass", txtPassword.getEditText().getText().toString());
+        editor.putInt("id_usuario",  usuario.getId_usuario());
+        editor.putString("nombre", usuario.getNombre());
+        editor.putInt("rol",  usuario.getRol());
+        editor.putString("descripcion_rol",usuario.getDescripcion_rol());
+
+        editor.commit();
 
 
         Intent intencion;

@@ -485,7 +485,7 @@ public class Registro extends AppCompatActivity {
         String encodedImage = null;
         if(bitmap != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 10, baos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 75, baos);
             byte[] imageBytes = baos.toByteArray();
             encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         }

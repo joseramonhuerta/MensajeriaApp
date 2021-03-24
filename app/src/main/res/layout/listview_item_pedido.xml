@@ -26,7 +26,6 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#57E4F7"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -34,6 +33,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:padding="5dp"
                         tools:visibility="gone">
 
                         <TextView
@@ -41,9 +41,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:fontFamily="@font/acme"
                             android:text="TextView"
-                            android:textColor="#020F72"
-                            android:textSize="18dp"
+                            android:textColor="#000000"
+                            android:textSize="20dp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -51,10 +52,11 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:fontFamily="@font/acme"
                             android:gravity="right"
                             android:text="TextView"
-                            android:textColor="#020F72"
-                            android:textSize="18dp"
+                            android:textColor="#000000"
+                            android:textSize="20dp"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
@@ -125,13 +127,23 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:orientation="vertical">
-
+                        <!--
                         <ImageView
                             android:id="@+id/ivUsuarioResumen"
                             android:layout_width="64dp"
                             android:layout_height="64dp"
                             android:layout_gravity="center_horizontal"
                             app:srcCompat="@drawable/user_2" />
+
+                        -->
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            xmlns:app="http://schemas.android.com/apk/res-auto"
+                            android:id="@+id/ivUsuarioResumen"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_gravity="center_horizontal"
+                            />
 
                         <TextView
                             android:id="@+id/txtNombreUsuarioResumen"

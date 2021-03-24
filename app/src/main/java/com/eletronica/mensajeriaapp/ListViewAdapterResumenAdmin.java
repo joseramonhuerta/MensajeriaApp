@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,23 +19,33 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import java.io.Serializable;
 import java.util.List;
+
+import static com.eletronica.mensajeriaapp.fragments.ResumenAdminFragment.DIALOGO_FRAGMENT;
 
 public class ListViewAdapterResumenAdmin extends BaseAdapter{
     List<Object> TempPedidosList;
     Context context;
+    FragmentManager fm;
+    View mView;
     private static final int HEADER_ITEM = 1;
     private static final int PEDIDO_ITEM = 2;
     //LayoutInflater layoutInflater;
+    private Fragment mainFrag;
 
 
-    public ListViewAdapterResumenAdmin(List<Object> listValue, Context context)
+    public ListViewAdapterResumenAdmin(List<Object> listValue, Context context, FragmentManager fm, Fragment mainFrag)
     {
         this.context = context;
         this.TempPedidosList = listValue;
         //layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
+        this.fm = fm;
+        this.mainFrag = mainFrag;
     }
 
     @Override
@@ -66,7 +77,7 @@ public class ListViewAdapterResumenAdmin extends BaseAdapter{
     */
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent)
+    public View getView(final int position, View convertView, final ViewGroup parent)
     {
 
         final ViewGroup main = parent;
@@ -86,7 +97,8 @@ public class ListViewAdapterResumenAdmin extends BaseAdapter{
             viewItemP.ivDestino = (ImageView) convertView.findViewById(R.id.ivDestinoResumenAdmin);
             viewItemP.ivDescripcion = (ImageView) convertView.findViewById(R.id.ivDescripcionOrigenResumenAdmin);
             viewItemP.ivImporte = (ImageView) convertView.findViewById(R.id.ivImporteResumenAdmin);
-
+            viewItemP.ivMensajero = (ImageView) convertView.findViewById(R.id.ivMensajeroResumenAdmin);
+            viewItemP.btnCambiarMensajero = (Button) convertView.findViewById(R.id.btnAsignarChoferResumenAdmin);
 
             viewItemP.txtHora = (TextView) convertView.findViewById(R.id.txtHoraResumenAdmin);
             viewItemP.txtStatus = (TextView) convertView.findViewById(R.id.txtStatusResumenAdmin);
@@ -102,6 +114,9 @@ public class ListViewAdapterResumenAdmin extends BaseAdapter{
             viewItemP.txtParada2 = (TextView)convertView.findViewById(R.id.txtParada2ResumenAdmin);
             viewItemP.txtParada3 = (TextView)convertView.findViewById(R.id.txtParada3ResumenAdmin);
 
+            viewItemP.txtNombreMensajero = (TextView)convertView.findViewById(R.id.txtNombreRepartidosResumenAdmin);
+            viewItemP.layMensajero = (LinearLayout) convertView.findViewById(R.id.layMensajeroResumenAdmin);
+
             viewItemP.layParada1 = (LinearLayout) convertView.findViewById(R.id.layParada1ResumenAdmin);
             viewItemP.layParada2 = (LinearLayout) convertView.findViewById(R.id.layParada2ResumenAdmin);
             viewItemP.layParada3 = (LinearLayout) convertView.findViewById(R.id.layParada3ResumenAdmin);
@@ -116,6 +131,8 @@ public class ListViewAdapterResumenAdmin extends BaseAdapter{
             viewItemP.ivDestino.setImageResource(R.drawable.icono_destino);
             viewItemP.ivDescripcion.setImageResource(R.drawable.globo);
             viewItemP.ivImporte.setImageResource(R.drawable.precio);
+            viewItemP.ivMensajero.setImageResource(R.drawable.icono_repartidor);
+
 
             convertView.setTag(viewItemP);
         } else {
@@ -123,9 +140,20 @@ public class ListViewAdapterResumenAdmin extends BaseAdapter{
         }
 
         viewItemP.btnDetalles.setVisibility(View.GONE);
+        viewItemP.layMensajero.setVisibility(View.GONE);
+        viewItemP.btnCambiarMensajero.setVisibility(View.GONE);
 
         if(((Pedido) TempPedidosList.get(position)).getStatus() > 0 )
             viewItemP.btnDetalles.setVisibility(View.VISIBLE);
+
+        if(((Pedido) TempPedidosList.get(position)).getStatus() == 0)
+            viewItemP.btnCambiarMensajero.setVisibility(View.VISIBLE);
+
+        if(((Pedido) TempPedidosList.get(position)).getId_usuario_mensajero() > 0){
+            viewItemP.layMensajero.setVisibility(View.VISIBLE);
+            viewItemP.txtNombreMensajero.setText(((Pedido) TempPedidosList.get(position)).getNombre_mensajero());
+
+        }
 
         viewItemP.txtHora.setText(((Pedido) TempPedidosList.get(position)).getHora());
         viewItemP.txtStatus.setText(((Pedido) TempPedidosList.get(position)).getStatus_descripcion());
@@ -194,6 +222,26 @@ public class ListViewAdapterResumenAdmin extends BaseAdapter{
 
         }
 
+        viewItemP.btnCambiarMensajero.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Pedido pedido = (Pedido) TempPedidosList.get(position);
+                FragmentTransaction ft = fm.beginTransaction();
+                CuadroDialogoChoferes dialogoFragment = new CuadroDialogoChoferes(context, fm, parent);
+                Bundle b = new Bundle();
+                b.putSerializable("pedido", (Serializable)pedido);
+
+                dialogoFragment.setArguments(b);
+                CuadroDialogoChoferes tPrev =  (CuadroDialogoChoferes) fm.findFragmentByTag("dialogo_choferes");
+
+                if(tPrev!=null)
+                    ft.remove(tPrev);
+
+                dialogoFragment.setTargetFragment(mainFrag, DIALOGO_FRAGMENT);
+                dialogoFragment.show(fm, "dialogo_choferes");
+            }
+        });
+
 
         return convertView;
     }
@@ -211,6 +259,7 @@ class ViewItemPedidoAdmin
     ImageView ivImporte;
     ImageView ivMensajero;
 
+
     TextView txtHora;
     TextView txtStatus;
     TextView txtUsuario;
@@ -218,8 +267,10 @@ class ViewItemPedidoAdmin
     TextView txtDestino;
     TextView txtDescripcion;
     TextView txtImporte;
+    TextView txtNombreMensajero;
 
     Button btnDetalles;
+    Button btnCambiarMensajero;
 
     TextView txtParada1;
     TextView txtParada2;
@@ -230,6 +281,8 @@ class ViewItemPedidoAdmin
     LinearLayout layParada1;
     LinearLayout layParada2;
     LinearLayout layParada3;
+
+    LinearLayout layMensajero;
 
 
 }

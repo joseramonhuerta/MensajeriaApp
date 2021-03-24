@@ -53,4 +53,8 @@ public class PrincipalCustomer extends AppCompatActivity {
                 .commit();
         itemSelected = item;
     }
+
+    @Override public void onBackPressed() {
+
+    }
 }

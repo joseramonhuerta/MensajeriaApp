@@ -1,15 +1,22 @@
 package com.eletronica.mensajeriaapp.fragments;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +36,10 @@ import com.android.volley.toolbox.Volley;
 import com.eletronica.mensajeriaapp.GlobalVariables;
 import com.eletronica.mensajeriaapp.R;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -42,8 +53,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 import static androidx.constraintlayout.widget.Constraints.TAG;
@@ -61,6 +75,8 @@ public class NuevaSolicitudFragment extends Fragment {
     ProgressBar progressBar;
     RequestQueue rq;
     JsonObjectRequest jrq;
+
+    private Geocoder geocoder;
     public NuevaSolicitudFragment() {
         // Required empty public constructor
     }
@@ -74,6 +90,7 @@ public class NuevaSolicitudFragment extends Fragment {
         Activity a = getActivity();
         if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         mView = view;
+        geocoder = new Geocoder(getActivity().getApplicationContext());
         rq = Volley.newRequestQueue(getActivity().getApplicationContext());
         txtDireccionOrigen = (TextInputLayout) view.findViewById(R.id.txtDireccionOrigen);
         txtDireccionDestino = (TextInputLayout) view.findViewById(R.id.txtDireccionDestino);
@@ -193,8 +210,59 @@ public class NuevaSolicitudFragment extends Fragment {
             }
         });
 
-
+        getUbicacion();
         return view;
+    }
+
+    private  void getUbicacion(){
+
+        try{
+
+            LocationRequest locationRequest = new LocationRequest();
+            locationRequest.setInterval(10000);
+            locationRequest.setFastestInterval(3000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            if(ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                return;
+            }
+
+            LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext()).requestLocationUpdates(locationRequest, new LocationCallback(){
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    super.onLocationResult(locationResult);
+                    LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext()).removeLocationUpdates(this);
+                    if(locationResult != null && locationResult.getLocations().size() > 0){
+                        int lastesLocationIndex = locationResult.getLocations().size() - 1;
+                        origen_lat = locationResult.getLocations().get(lastesLocationIndex).getLatitude();
+                        origen_lng = locationResult.getLocations().get(lastesLocationIndex).getLongitude();
+                        //String loc = locationResult.getLocations().get(lastesLocationIndex).toString();
+                        try {
+                            List<Address> adress = geocoder.getFromLocation(origen_lat,origen_lng, 1);
+
+                            Address ad = adress.get(0);
+                            ArrayList<String> addressFragment = new ArrayList<>();
+                            for(int i = 0; i <= ad.getMaxAddressLineIndex(); i++){
+                                addressFragment.add(ad.getAddressLine(i));
+                            }
+
+                            String adres = TextUtils.join(Objects.requireNonNull(System.getProperty("line.separator")), addressFragment);
+
+
+                            txtDireccionOrigen.getEditText().setText(adres);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        //txtDireccionOrigen.getEditText().setText(
+                    }
+                }
+            }, Looper.myLooper());
+
+        }catch (Exception e){
+
+        }
+
+
+
     }
 
     private void mostrarLayoutParada() {
@@ -394,6 +462,8 @@ public class NuevaSolicitudFragment extends Fragment {
         layParada1.setVisibility(View.GONE);
         layParada2.setVisibility(View.GONE);
         layParada3.setVisibility(View.GONE);
+
+        getUbicacion();
 
     }
 

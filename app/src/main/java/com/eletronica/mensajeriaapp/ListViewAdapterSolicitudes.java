@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -34,6 +36,11 @@ public class ListViewAdapterSolicitudes extends BaseAdapter{
         this.context = context;
         this.TempPedidosList = listValue;
 
+    }
+
+    public void updateReceiptsList(List<Pedido> newlist) {
+        this.TempPedidosList = newlist;
+        this.notifyDataSetChanged();
     }
 
     @Override
@@ -135,7 +142,7 @@ public class ListViewAdapterSolicitudes extends BaseAdapter{
         DecimalFormat formato2 = new DecimalFormat("#,###.00");
         String valorFormateado2 = formato2.format(valor2);
         viewItem.txtImporte.setText(valorFormateado2);
-
+        /*
         if (TempPedidosList.get(position).getFoto() != null) {
             byte[] encodeByte = (byte[]) (TempPedidosList.get(position).getFoto());
             if(encodeByte.length > 0){
@@ -143,33 +150,8 @@ public class ListViewAdapterSolicitudes extends BaseAdapter{
                 viewItem.ivUsuario.setImageBitmap(photobmp);
 
             }
-        }
+        }*/
 
-        if(TempPedidosList.get(position).getParada1() != "null")
-        {
-            viewItem.layParada1.setVisibility(View.VISIBLE);
-            viewItem.ivParada1.setImageResource(R.drawable.icono_stop);
-            viewItem.txtParada1.setText(TempPedidosList.get(position).getParada1());
-
-        }
-
-
-        if(TempPedidosList.get(position).getParada2() != "null")
-        {
-            viewItem.layParada2.setVisibility(View.VISIBLE);
-            viewItem.ivParada2.setImageResource(R.drawable.icono_stop);
-            viewItem.txtParada2.setText(TempPedidosList.get(position).getParada2());
-
-        }
-
-
-        if(TempPedidosList.get(position).getParada3() != "null")
-        {
-            viewItem.layParada3.setVisibility(View.VISIBLE);
-            viewItem.ivParada3.setImageResource(R.drawable.icono_stop);
-            viewItem.txtParada3.setText(TempPedidosList.get(position).getParada3());
-
-        }
 
 
 

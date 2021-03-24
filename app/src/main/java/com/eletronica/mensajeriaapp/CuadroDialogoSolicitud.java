@@ -2,20 +2,25 @@ package com.eletronica.mensajeriaapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,11 +29,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.toolbox.ImageRequest;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,6 +50,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.android.volley.Request;
@@ -60,13 +73,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static java.lang.Integer.parseInt;
 
-public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReadyCallback, Response.Listener<JSONObject>, Response.ErrorListener {
+public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReadyCallback, Response.Listener<JSONObject>, Response.ErrorListener, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
     Context mContext;
     FragmentManager fm;
     View mView;
 
     GoogleMap mMap;
     SupportMapFragment mapFragment;
+    GoogleApiClient mGoogleApiClient;
+    LocationRequest mLocationRequest;
+
 
     Double origen_latitud;
     Double origen_longitud;
@@ -87,12 +104,18 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
 
     Dialog dialogo = null;
     int id_pedido = 0;
+    int id_usuario = 0;
     Pedido pedido = null;
+
+    CircleImageView ivImagen;
 
     RequestQueue rq;
     JsonRequest jrq;
+    RequestQueue request;
 
     ProgressBar progressBar;
+
+    GlobalVariables vg;
 
     public interface Actualizar {
 
@@ -128,8 +151,10 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         View v = inflater.inflate(R.layout.cuadro_dialogo_solicitud, null);
         Bundle b = getArguments();
         rq = Volley.newRequestQueue(v.getContext());
+        request = Volley.newRequestQueue(getContext());
         pedido = (Pedido) b.getSerializable("pedido");
         id_pedido = pedido.getId_pedido();
+        id_usuario = pedido.getId_usuario();
         String nombre = pedido.getNombre();
         Double calificacion = pedido.getCalificacion();
         String origen = pedido.getOrigen();
@@ -164,7 +189,7 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         TextView txtDestino = (TextView) v.findViewById(R.id.txtDestinoDialogoSolicitud);
         TextView txtDescripcionOrigen = (TextView) v.findViewById(R.id.txtDescripcionOrigenDialogoSolicitud);
         TextView txtImporte = (TextView) v.findViewById(R.id.txtImporteDialogoSolicitud);
-        CircleImageView ivImagen = (CircleImageView) v.findViewById(R.id.ivUsuarioDialogo);
+        ivImagen = (CircleImageView) v.findViewById(R.id.ivUsuarioDialogo);
         final Button btnAceptar = (Button) v.findViewById(R.id.btnAceptarDialogoSolicitud);
         final Button btnSalir = (Button) v.findViewById(R.id.btnSalirDialogoSolicitud);
 
@@ -186,6 +211,8 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         txtDestino.setText(destino);
         txtDescripcionOrigen.setText(descripcion_origen);
 
+        vg = new GlobalVariables();
+
         if(parada1 != "null"){
             layParada1.setVisibility(View.VISIBLE);
             txtParada1.setText(parada1);
@@ -203,7 +230,7 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
 
         String valorFormateado2 = formato1.format(importe);
         txtImporte.setText(valorFormateado2);
-
+        /*
         if (foto != null) {
             byte[] encodeByte = (byte[]) (foto);
             if(encodeByte.length > 0){
@@ -211,7 +238,10 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
                 ivImagen.setImageBitmap(photobmp);
 
             }
-        }
+        }*/
+
+        cargarImagenUsuario();
+
 
 
         btnSalir.setOnClickListener(new View.OnClickListener() {
@@ -236,6 +266,31 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         return v;
 
 
+    }
+
+    public void cargarImagenUsuario(){
+
+        String urlImg = vg.URLServicio + "fotos/" + String.valueOf(id_usuario)+".jpg";
+        urlImg = urlImg.replace(" ","%20");
+        try{
+            ImageRequest imageRequest = new ImageRequest(urlImg, new Response.Listener<Bitmap>() {
+                @Override
+                public void onResponse(Bitmap response) {
+                    ivImagen.setImageBitmap(response);
+                }
+            },0,0, ImageView.ScaleType.CENTER,null, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+
+                }
+            });
+            request.add(imageRequest);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            Toast.makeText(getContext(),"Error: " + e.toString(), Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     private void aceptarSolicitud() {
@@ -338,103 +393,102 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
     }
 
     private void setUpMap() {
-        mMap.clear();
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        if (ActivityCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    Activity#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-            return;
-        }
-        //mMap.setMyLocationEnabled(true);
         LatLng we = new LatLng(23.2340033,-106.4271412);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(we,15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(we,12));
+
+
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                LatLng marcador1 = new LatLng(origen_latitud, origen_longitud);
+                LatLng marcador2 = new LatLng(destino_latitud, destino_longitud);
+
+                if(parada1 != "null"){
+                    LatLng stop1 = new LatLng(parada1_latitud, parada1_longitud);
+                    mMap.addMarker(new MarkerOptions()
+                            .position(stop1)
+                            .title(parada1)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+                }
+
+                if(parada2 != "null"){
+                    LatLng stop2 = new LatLng(parada2_latitud, parada2_longitud);
+                    mMap.addMarker(new MarkerOptions()
+                            .position(stop2)
+                            .title(parada2)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+                }
+
+                if(parada3 != "null"){
+                    LatLng stop3 = new LatLng(parada3_latitud, parada3_longitud);
+                    mMap.addMarker(new MarkerOptions()
+                            .position(stop3)
+                            .title(parada3)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+                }
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(marcador1)
+                        .title(pedido.getOrigen())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_origen)));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(marcador1));
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(marcador2)
+                        .title(pedido.getDestino())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_destino)));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(marcador2));
+
+                // Centrar Marcadores
+                LatLngBounds.Builder constructor = new LatLngBounds.Builder();
+
+                constructor.include(marcador1);
+                constructor.include(marcador2);
+
+                LatLngBounds limites = constructor.build();
+
+                //int ancho = getResources().getDisplayMetrics().widthPixels;
+                int ancho =  mapFragment.getView().getMeasuredWidth();
+
+                //int alto = getResources().getDisplayMetrics().heightPixels;
+                int alto =  mapFragment.getView().getMeasuredHeight();
+
+                int padding = (int) (alto * 0.20); // 25% de espacio (padding) superior e inferior
+
+                CameraUpdate centrarmarcadores = CameraUpdateFactory.newLatLngBounds(limites, ancho, alto, padding);
+
+                //mMap.animateCamera(centrarmarcadores);
+                mMap.moveCamera(centrarmarcadores);
+
+
+            }
+        });
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-        //    != PackageManager.PERMISSION_GRANTED
-        //    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-        //    != PackageManager.PERMISSION_GRANTED) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
-        //return;
-        //  }
-        //23.2336172,origen_longitud=106.4153152,destino_latitud=23.2313368,destino_longitud=106.4072385
-        //map.setMyLocationEnabled(true);
-        setUpMap();
 
-        LatLng marcador1 = new LatLng(origen_latitud, origen_longitud);
-        LatLng marcador2 = new LatLng(destino_latitud, destino_longitud);
-
-        if(parada1 != "null"){
-            LatLng stop1 = new LatLng(parada1_latitud, parada1_longitud);
-            mMap.addMarker(new MarkerOptions()
-                    .position(stop1)
-                    .title(parada1)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        //Initialize Google Play Services
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                //Location Permission already granted
+                buildGoogleApiClient();
+                setUpMap();
+                //mMap.setMyLocationEnabled(true);
+            } else {
+                //Request Location Permission
+                checkLocationPermission();
+            }
         }
-
-        if(parada2 != "null"){
-            LatLng stop2 = new LatLng(parada2_latitud, parada2_longitud);
-            mMap.addMarker(new MarkerOptions()
-                    .position(stop2)
-                    .title(parada2)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
+        else {
+            buildGoogleApiClient();
+            setUpMap();
+            //mMap.setMyLocationEnabled(true);
         }
-
-        if(parada3 != "null"){
-            LatLng stop3 = new LatLng(parada3_latitud, parada3_longitud);
-            mMap.addMarker(new MarkerOptions()
-                    .position(stop3)
-                    .title(parada3)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_stop)));
-        }
-
-        mMap.addMarker(new MarkerOptions()
-                .position(marcador1)
-                .title(pedido.getOrigen())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_origen)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(marcador1));
-
-        mMap.addMarker(new MarkerOptions()
-                .position(marcador2)
-                .title(pedido.getDestino())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_destino)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(marcador2));
-
-        // Centrar Marcadores
-        LatLngBounds.Builder constructor = new LatLngBounds.Builder();
-
-        constructor.include(marcador1);
-        constructor.include(marcador2);
-
-        LatLngBounds limites = constructor.build();
-
-        //int ancho = getResources().getDisplayMetrics().widthPixels;
-        int ancho =  mapFragment.getView().getMeasuredWidth();
-
-        //int alto = getResources().getDisplayMetrics().heightPixels;
-        int alto =  mapFragment.getView().getMeasuredHeight();
-
-        int padding = (int) (alto * 0.20); // 25% de espacio (padding) superior e inferior
-
-        CameraUpdate centrarmarcadores = CameraUpdateFactory.newLatLngBounds(limites, ancho, alto, padding);
-
-        //mMap.animateCamera(centrarmarcadores);
-        mMap.moveCamera(centrarmarcadores);
-
-
     }
 
     @Override
@@ -463,6 +517,115 @@ public class CuadroDialogoSolicitud extends DialogFragment implements OnMapReady
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         ft.remove(fragment);
         ft.commit();
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getApplicationContext())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {}
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {}
+
+    @Override
+    public void onLocationChanged(Location location)
+    {
+
+
+
+    }
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(getActivity().getApplicationContext())
+                        .setTitle("Location Permission Needed")
+                        .setMessage("This app needs the Location permission, please accept to use location functionality")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(getActivity(),
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION );
+                            }
+                        })
+                        .create()
+                        .show();
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION );
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        if (mGoogleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        //mMap.setMyLocationEnabled(true);
+                        setUpMap();
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getActivity().getApplicationContext(), "permission denied", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
 }

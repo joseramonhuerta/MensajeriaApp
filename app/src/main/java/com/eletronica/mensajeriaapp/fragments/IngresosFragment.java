@@ -3,6 +3,7 @@ package com.eletronica.mensajeriaapp.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,16 +27,19 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.eletronica.mensajeriaapp.CuadroDialogoSolicitud;
 import com.eletronica.mensajeriaapp.GlobalVariables;
 import com.eletronica.mensajeriaapp.ListViewAdapterResumen;
 import com.eletronica.mensajeriaapp.Pedido;
 import com.eletronica.mensajeriaapp.Header;
 import com.eletronica.mensajeriaapp.R;
+import com.eletronica.mensajeriaapp.SolicitudEnCurso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +88,20 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
 
         fm = getFragmentManager();
         ft = fm.beginTransaction();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                Pedido pedido = (Pedido) listView.getItemAtPosition(position);
+                if(pedido.getStatus() == 1) {
+                    Intent intencion = new Intent(getActivity(), SolicitudEnCurso.class);
+                    intencion.putExtra("pedido", (Serializable) pedido);
+                    intencion.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intencion);
+                }
+            }
+        });
 
 
 
@@ -197,7 +215,7 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
                                 pedido.setOrigen(jsonObject.getString("origen"));
                                 pedido.setDestino(jsonObject.getString("destino"));
                                 pedido.setDescripcion_origen(jsonObject.getString("descripcion_origen"));
-                                pedido.setStatus(Integer.parseInt(jsonObject.getString("status")));
+                                pedido.setStatus(Integer.parseInt(jsonObject.getString("status_pedido")));
                                 pedido.setStatus_descripcion(jsonObject.getString("descripcion_status"));
                                 pedido.setCalificacion(Double.parseDouble(jsonObject.getString("calificacion")));
                                 pedido.setImporte(Double.parseDouble(jsonObject.getString("importe")));
@@ -210,6 +228,23 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
                                 pedido.setTemplate(Integer.parseInt(jsonObject.getString("formato")));
                                 pedido.setFecha_header(jsonObject.getString("fecha_header"));
                                 pedido.setTotal_header(Double.parseDouble(jsonObject.getString("total_header")));
+
+                                pedido.setCelular(jsonObject.getString("celular"));
+
+                                //pedido.setFoto(Base64.decode(jsonObject.getString("foto"), Base64.DEFAULT));
+
+                                pedido.setParada1(jsonObject.getString("parada1"));
+                                pedido.setParada_latitud_1(Double.parseDouble(jsonObject.getString("parada_latitud_1")));
+                                pedido.setParada_longitud_1(Double.parseDouble(jsonObject.getString("parada_longitud_1")));
+
+                                pedido.setParada2(jsonObject.getString("parada2"));
+                                pedido.setParada_latitud_2(Double.parseDouble(jsonObject.getString("parada_latitud_2")));
+                                pedido.setParada_longitud_2(Double.parseDouble(jsonObject.getString("parada_longitud_2")));
+
+                                pedido.setParada3(jsonObject.getString("parada3"));
+                                pedido.setParada_latitud_3(Double.parseDouble(jsonObject.getString("parada_latitud_3")));
+                                pedido.setParada_longitud_3(Double.parseDouble(jsonObject.getString("parada_longitud_3")));
+
                                 //origen_latitud,origen_longitud,destino_latitud,destino_longitud
                                 // Adding subject list object into CustomSubjectNamesList.
                                 pedidosList.add(pedido);

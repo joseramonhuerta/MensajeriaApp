@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.eletronica.mensajeriaapp.fragments.SolicitudesFragment;
@@ -81,6 +83,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
     Context context;
     JsonObjectRequest jsonObjectRequest;
     RequestQueue request;
+    RequestQueue requestFoto;
     Location location;
     GPS_controler gpsTracker;
 
@@ -127,10 +130,12 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
     TextView txtParada3;
 
     CircleImageView ivImagen;
+    ImageView btnCerrar;
 
     Pedido pedido=null;
 
     int id_pedido = 0;
+    int id_usuario = 0;
 
     boolean solicitud_activa = true;
 
@@ -141,6 +146,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
     final Handler handler = new Handler();
     final int delay = 3000; // 1000 milliseconds == 1 second
 
+    GlobalVariables vg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +167,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         }
         mapFragment.getMapAsync(this);
         request = Volley.newRequestQueue(getApplicationContext());
-
+        requestFoto = Volley.newRequestQueue(getApplicationContext());
         txtNombre = (TextView) findViewById(R.id.txtNombreUsuarioSolicitudEnCurso);
         txtCalificacion = (TextView) findViewById(R.id.txtCalificacionSolicitudEnCurso);
         txtOrigen = (TextView) findViewById(R.id.txtOrigenSolicitudEnCurso);
@@ -184,12 +190,15 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         layParada1 = (LinearLayout) findViewById(R.id.layParada1EnCurso);
         layParada2 = (LinearLayout) findViewById(R.id.layParada2EnCurso);
         layParada3 = (LinearLayout) findViewById(R.id.layParada3EnCurso);
+        btnCerrar = (ImageView) findViewById(R.id.btnCerrarSolicitudEnCurso);
 
+        vg = new GlobalVariables();
 
         Intent intent = getIntent();
         pedido = (Pedido) intent.getExtras().getSerializable("pedido");
 
         id_pedido = pedido.getId_pedido();
+        id_usuario = pedido.getId_usuario();
         txtNombre.setText(pedido.getNombre());
         txtCalificacion.setText(String.valueOf(pedido.getCalificacion()));
         txtOrigen.setText(pedido.getOrigen());
@@ -229,7 +238,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
             txtParada3.setText(parada3);
         }
 
-
+        /*
         byte[] foto = pedido.getFoto();
 
         if (foto != null) {
@@ -240,7 +249,8 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
 
             }
         }
-
+        */
+        cargarImagenUsuario();
 
         btnFinalizar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -319,6 +329,13 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
             }
         });
 
+        btnCerrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         handler.postDelayed(new Runnable() {
             public void run() {
                 if(solicitud_activa)
@@ -326,6 +343,31 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
                 handler.postDelayed(this, delay);
             }
         }, delay);
+    }
+
+    public void cargarImagenUsuario(){
+
+        String urlImg = vg.URLServicio + "fotos/" + String.valueOf(id_usuario)+".jpg";
+        urlImg = urlImg.replace(" ","%20");
+        try{
+            ImageRequest imageRequest = new ImageRequest(urlImg, new Response.Listener<Bitmap>() {
+                @Override
+                public void onResponse(Bitmap response) {
+                    ivImagen.setImageBitmap(response);
+                }
+            },0,0, ImageView.ScaleType.CENTER,null, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+
+                }
+            });
+            request.add(imageRequest);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            Toast.makeText(getApplicationContext(),"Error: " + e.toString(), Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     private void verificarStatus(){
@@ -479,48 +521,18 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void setUpMap() {
-        mMap.clear();
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            return;
-        }
         LatLng we = new LatLng(23.2340033,-106.4271412);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(we,15));
-
-        setLocationDriver(gpsTracker.getLocation());
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        //Initialize Google Play Services
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                //Location Permission already granted
-                buildGoogleApiClient();
-                //mMap.setMyLocationEnabled(true);
-            } else {
-                //Request Location Permission
-                checkLocationPermission();
-            }
-        }
-        else {
-            buildGoogleApiClient();
-            //mMap.setMyLocationEnabled(true);
-        }
-
-        LatLng we = new LatLng(23.2340033,-106.4271412);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(we,12));
-
-
-        /*
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(we,12));
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
-            public void onMapLoaded() {*/
+            public void onMapLoaded() {
+
+
+
+
+
+
                 //setLocationDriver(gpsTracker.getLocation());
                 //setUpMap(); //Se quito esta funcion porque era para la validacion pero ya es estaba validando.
 
@@ -581,8 +593,8 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
                 CameraUpdate centrarmarcadores = CameraUpdateFactory.newLatLngBounds(limites, ancho, alto, padding);
 
                 mMap.moveCamera(centrarmarcadores);
-         //   }
-       // });
+            }
+        });
 
         runOnUiThread(new Runnable() {
             public void run() {
@@ -590,6 +602,33 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
             }
         });
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        //Initialize Google Play Services
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                //Location Permission already granted
+                buildGoogleApiClient();
+                setUpMap();
+                //mMap.setMyLocationEnabled(true);
+            } else {
+                //Request Location Permission
+                checkLocationPermission();
+            }
+        }
+        else {
+            buildGoogleApiClient();
+            setUpMap();
+            //mMap.setMyLocationEnabled(true);
+        }
+
+        //setUpMap();
     }
 
     private void setLocationDriver(Location location){
@@ -922,7 +961,8 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
-                        mMap.setMyLocationEnabled(true);
+                        //mMap.setMyLocationEnabled(true);
+                        setUpMap();
                     }
 
                 } else {
@@ -939,7 +979,5 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
-    @Override public void onBackPressed() {
 
-    }
 }

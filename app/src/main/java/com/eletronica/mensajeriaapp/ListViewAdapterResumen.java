@@ -11,10 +11,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListViewAdapterResumen extends BaseAdapter{
     List<Pedido> TempPedidosList;
@@ -75,7 +79,7 @@ public class ListViewAdapterResumen extends BaseAdapter{
 
             viewItemP.ivReloj = (ImageView) convertView.findViewById(R.id.ivRelojResumen);
             viewItemP.ivStatus = (ImageView) convertView.findViewById(R.id.ivStatusResumen);
-            viewItemP.ivUsuario = (ImageView) convertView.findViewById(R.id.ivUsuarioResumen);
+            viewItemP.ivUsuario = (CircleImageView) convertView.findViewById(R.id.ivUsuarioResumen);
             viewItemP.ivEstrella = (ImageView) convertView.findViewById(R.id.ivEstrellaResumen);
             viewItemP.ivOrigen = (ImageView) convertView.findViewById(R.id.ivOrigenResumen);
             viewItemP.ivDestino = (ImageView) convertView.findViewById(R.id.ivDestinoResumen);
@@ -98,7 +102,7 @@ public class ListViewAdapterResumen extends BaseAdapter{
 
             viewItemP.ivReloj.setImageResource(R.drawable.icono_reloj);
             viewItemP.ivStatus.setImageResource(R.drawable.icono_status_0);
-            viewItemP.ivUsuario.setImageResource(R.drawable.user_2);
+            //viewItemP.ivUsuario.setImageResource(R.drawable.user_2);
             viewItemP.ivEstrella.setImageResource(R.drawable.estrella);
             viewItemP.ivOrigen.setImageResource(R.drawable.icono_origen);
             viewItemP.ivDestino.setImageResource(R.drawable.icono_destino);
@@ -126,7 +130,10 @@ public class ListViewAdapterResumen extends BaseAdapter{
         if(TempPedidosList.get(position).getTemplate() == 1)
             viewItemP.layHeader.setVisibility(convertView.VISIBLE);
 
-
+        int id = TempPedidosList.get(position).getId_usuario();
+        GlobalVariables vg = new GlobalVariables();
+        String imageUri = vg.URLServicio + "fotos/" + String.valueOf(id)+ ".jpg";
+        Picasso.get().load(imageUri).into(viewItemP.ivUsuario);
 
 
         if(TempPedidosList.get(position).getStatus() == 0)
@@ -162,7 +169,7 @@ class ViewItemPedido
 {
     ImageView ivReloj;
     ImageView ivStatus;
-    ImageView ivUsuario;
+    CircleImageView ivUsuario;
     ImageView ivEstrella;
     ImageView ivOrigen;
     ImageView ivDestino;

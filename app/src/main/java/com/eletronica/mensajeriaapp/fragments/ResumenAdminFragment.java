@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,6 +31,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.eletronica.mensajeriaapp.CuadroDialogoChoferes;
 import com.eletronica.mensajeriaapp.GlobalVariables;
 import com.eletronica.mensajeriaapp.Header;
 import com.eletronica.mensajeriaapp.ListViewAdapterResumenAdmin;
@@ -50,7 +52,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, CuadroDialogoChoferes.ActualizarUsuario {
     static View mView;
 
     ListView listView;
@@ -70,6 +72,8 @@ public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout
     String HTTP_URL;
     String FinalJSonObject ;
     String FinalJSonObjectTecnicos;
+    public static final int DIALOGO_FRAGMENT = 1;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -172,6 +176,12 @@ public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout
 
         // Passing String request into RequestQueue.
         requestQueue.add(stringRequest);
+    }
+
+    @Override
+    public void actualizaActividadUsuario(View view, int id_usuario, String nombre_usuario) {
+        loadSolicitudes(mView);
+
     }
 
 
@@ -447,7 +457,9 @@ public class ResumenAdminFragment extends Fragment implements SwipeRefreshLayout
         {
             try{
               // After all done loading set complete CustomSubjectNamesList with application context to ListView adapter.
-                final ListViewAdapterResumenAdmin adapter = new ListViewAdapterResumenAdmin(pedidosList, context);
+
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                final ListViewAdapterResumenAdmin adapter = new ListViewAdapterResumenAdmin(pedidosList, context, fm, ResumenAdminFragment.this);
 
                 // Setting up all data into ListView.
                 listView.setAdapter(adapter);
