@@ -788,17 +788,18 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
             CharSequence name = "Notificación";
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-            /*AudioAttributes audioAttributes = new AudioAttributes.Builder()
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .build();
-            notificationChannel.setSound(soundUri, audioAttributes);*/
+            notificationChannel.setSound(soundUri, audioAttributes);
             notificationManager.createNotificationChannel(notificationChannel);
         }
 
 
-        Intent intent = new Intent(getActivity(), Principal.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(this.getActivity(), Principal.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this.getActivity(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity().getApplicationContext(), CHANNEL_ID);
@@ -814,7 +815,7 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
         builder.setContentIntent(pendingIntent);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            //builder.setSound(soundUri);
+            builder.setSound(soundUri);
         }
 
 
