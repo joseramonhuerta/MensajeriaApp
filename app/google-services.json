@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "317416757715",
+    "project_id": "mensajeriaapp-6f31d",
+    "storage_bucket": "mensajeriaapp-6f31d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317416757715:android:029b19e972a9c9f46a7726",
+        "android_client_info": {
+          "package_name": "com.eletronica.mensajeriaapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317416757715-33ekql0bmms4c95l54kvmcv3juj9fju8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBb_A1ob0l1TkKAzlVaPy_uwQloNWUCqy4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317416757715-33ekql0bmms4c95l54kvmcv3juj9fju8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

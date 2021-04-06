@@ -56,7 +56,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
@@ -411,6 +413,7 @@ public class NuevaSolicitudFragment extends Fragment {
                     if(success){
                         Toast.makeText(getContext(),msg, Toast.LENGTH_SHORT).show();
                         limpiarPantalla();
+                        notificacionNuevaSolicitud();
                     }else{
                         Toast.makeText(getContext(),msg, Toast.LENGTH_SHORT).show();
                     }
@@ -435,6 +438,42 @@ public class NuevaSolicitudFragment extends Fragment {
         );
 
         rq.add(jrq);
+
+
+    }
+
+    private void notificacionNuevaSolicitud(){
+            RequestQueue myrequest = Volley.newRequestQueue(getActivity().getApplicationContext());
+            JSONObject json = new JSONObject();
+
+            try{
+                //sacar de la base de datos
+                //String token = "";
+
+                json.put("to", "/topics/" + "topicUsuarios");
+                JSONObject notificacion = new JSONObject();
+                notificacion.put("titulo","Nuevas Solicitudes");
+                notificacion.put("detalle","Se agregaron nuevas solicitudes");
+
+                json.put("data", notificacion);
+
+                String URL = "https://fcm.googleapis.com/fcm/send";
+
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL, json, null, null){
+                    @Override
+                    public Map<String, String> getHeaders(){
+                        Map<String, String> header = new HashMap<>();
+
+                        header.put("content-type","application/json");
+                        header.put("authorization", "key=AAAASeeDWdM:APA91bHWiH23piw50MzPjVr_urfwRUTvDImu4797wZYLv6m22EkGAP0Z17aZ-8AYL4zeFw3XNZBOOb_SDJ0pLwEGd2doYDwbhD4ZtrkVMrqsunrcRMm28m2g9oOKMk2BkiCcpqJjDUzs");
+                        return header;
+                    }
+                };
+
+                myrequest.add(request);
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
 
 
     }

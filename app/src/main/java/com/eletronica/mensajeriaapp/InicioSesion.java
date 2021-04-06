@@ -1,5 +1,6 @@
 package com.eletronica.mensajeriaapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -29,8 +31,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import static java.lang.Integer.parseInt;
 
@@ -82,12 +86,15 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             int id_user = prefs.getInt("id_usuario", 0);
             int rol = prefs.getInt("rol", 0);
             String descripcion_rol = prefs.getString("descripcion_rol", "");
+            String token = prefs.getString("token","");
+
 
             usuario.setUsuario(user);
             usuario.setNombre(nombre);
             usuario.setId_usuario(id_user);
             usuario.setRol(rol);
             usuario.setDescripcion_rol(descripcion_rol);
+            usuario.setToken(token);
 
             GlobalVariables variablesGlobales = new GlobalVariables();
             variablesGlobales.id_usuario = id_user;
@@ -95,6 +102,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             variablesGlobales.usuario = user;
             variablesGlobales.rol = rol;
             variablesGlobales.descripcion_rol = descripcion_rol;
+            variablesGlobales.token = token;
 
             Intent intencion;
 
@@ -139,6 +147,30 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
 
             }
         });
+
+        notifications();
+    }
+
+    private void notifications(){
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                           return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        String msg = token.toString();
+
+                        Log.e("getToken", "Get token: " + msg);
+
+                        //Toast.makeText(InicioSesion.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private Boolean validarUsuario(){
@@ -172,7 +204,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
         progressBar.setVisibility(View.VISIBLE);
         GlobalVariables variablesGlobales = new GlobalVariables();
         String url = variablesGlobales.URLServicio + "sesion.php?usuario="+txtUsuario.getEditText().getText().toString()+
-                "&clave="+txtPassword.getEditText().getText().toString();
+                "&clave="+txtPassword.getEditText().getText().toString() + "&token=" + variablesGlobales.token;
         jrq = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
         rq.add(jrq);
     }
@@ -198,7 +230,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             usuario.setRol(parseInt(jsonObject.optString("rol")));
             usuario.setDescripcion_rol(jsonObject.optString("descripcion_rol"));
             usuario.setFoto(Base64.decode(jsonObject.getString("foto"), Base64.DEFAULT));
-
+            usuario.setToken(jsonObject.optString("token"));
 
             GlobalVariables variablesGlobales = new GlobalVariables();
             variablesGlobales.id_usuario = usuario.getId_usuario();
@@ -207,6 +239,20 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             variablesGlobales.rol = usuario.getRol();
             variablesGlobales.descripcion_rol = usuario.getDescripcion_rol();
             variablesGlobales.foto = usuario.getFoto();
+            variablesGlobales.token = usuario.getToken();
+
+            String topic = "";
+
+            if(usuario.getRol() == 1)
+                topic = "topicUsuarios";
+            else if(usuario.getRol() == 2)
+                topic = "topicClientes";
+            else if(usuario.getRol() == 3)
+                topic = "topicAdmin";
+            else
+                topic = "topicClientes";
+
+            FirebaseMessaging.getInstance().subscribeToTopic(topic);
 
         } catch (JSONException e) {
             //e.printStackTrace();
@@ -221,6 +267,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
         editor.putString("nombre", usuario.getNombre());
         editor.putInt("rol",  usuario.getRol());
         editor.putString("descripcion_rol",usuario.getDescripcion_rol());
+        editor.putString("token", usuario.getToken());
 
         editor.commit();
 

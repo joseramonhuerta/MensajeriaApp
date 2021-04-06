@@ -2,7 +2,7 @@ package com.eletronica.mensajeriaapp;
 
 
 public class User {
-    private String usuario,nombre, descripcion_rol,celular, status_descripcion,status;
+    private String usuario,nombre, descripcion_rol,celular, status_descripcion,status, token;
     private int  id_usuario, rol;
     private byte[] foto;
 
@@ -83,4 +83,11 @@ public class User {
         this.descripcion_rol = descripcion_rol;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

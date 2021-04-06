@@ -209,7 +209,7 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
                         public void onErrorResponse(VolleyError error) {
 
                             // Showing error message if something goes wrong.
-                            Toast.makeText(vista.getContext(),error.getMessage(),Toast.LENGTH_LONG).show();
+                            //Toast.makeText(vista.getContext(),error.getMessage(),Toast.LENGTH_LONG).show();
 
                         }
                     });
@@ -218,7 +218,7 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
             RequestQueue requestQueue = Volley.newRequestQueue(vista.getContext());
             requestQueue.add(stringRequest);
         } catch (Exception e) {
-            Toast.makeText(vista.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+            //Toast.makeText(vista.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
         }
     }
 
@@ -266,7 +266,7 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
                         public void onErrorResponse(VolleyError error) {
 
                             // Showing error message if something goes wrong.
-                            Toast.makeText(vista.getContext(),error.getMessage(),Toast.LENGTH_LONG).show();
+                            //Toast.makeText(vista.getContext(),error.getMessage(),Toast.LENGTH_LONG).show();
 
                         }
                     });
@@ -737,17 +737,17 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
 
 
                         }
-                        if(jsonArrayNuevas.length() > 0){
-                            notificarNuevasSolicitudes();
-                        }
+                        //if(jsonArrayNuevas.length() > 0){
+                            //notificarNuevasSolicitudes();
+                        //}
                     } catch (JSONException e) {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                //e.printStackTrace();
             }
             return null;
         }
