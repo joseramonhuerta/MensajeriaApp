@@ -14,10 +14,11 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.eletronica.mensajeriaapp.CuadroDialogoConfirmarSolicitud;
+import com.eletronica.mensajeriaapp.CuadroDialogoObtenerUbicacion;
 import com.eletronica.mensajeriaapp.GlobalVariables;
 import com.eletronica.mensajeriaapp.R;
 import com.google.android.gms.common.api.Status;
@@ -40,13 +43,11 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
@@ -55,19 +56,17 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NuevaSolicitudFragment extends Fragment {
+public class NuevaSolicitudFragment extends Fragment implements CuadroDialogoConfirmarSolicitud.Confirmar, CuadroDialogoObtenerUbicacion.ActualizarUbicacion{
     TextInputLayout txtDireccionOrigen, txtDireccionDestino, txtComentarios, txtParada1, txtParada2, txtParada3;
     Button btnSolicitar, btnCancelar;
     ImageView btnAgregarParada,btnEliminarParada1,btnEliminarParada2,btnEliminarParada3;
@@ -78,9 +77,62 @@ public class NuevaSolicitudFragment extends Fragment {
     RequestQueue rq;
     JsonObjectRequest jrq;
 
+    String origen;
+    String destino;
+    String comentarios;
+    String parada1;
+    String parada2;
+    String parada3;
+
     private Geocoder geocoder;
+    private FragmentManager fm;
+    public static final int DIALOGO_FRAGMENT = 100;
+    public static final int DIALOGO_FRAGMENT_UBICACION = 200;
     public NuevaSolicitudFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void solicitudConfirmada() {
+
+        //progressBar.setVisibility(mView.VISIBLE);
+        registrarServicio();
+
+
+    }
+
+    @Override
+    public void actualizaActividadUbicacion(int control,String mOrigen, LatLng mOrigenLatLng) {
+        if(control == 1){
+            origen = mOrigen;
+            txtDireccionOrigen.getEditText().setText(origen);
+            origen_lat = mOrigenLatLng.latitude;
+            origen_lng=mOrigenLatLng.longitude;
+        }
+        if(control == 2){
+            parada1 = mOrigen;
+            txtParada1.getEditText().setText(parada1);
+            parada1_lat = mOrigenLatLng.latitude;
+            parada1_lng=mOrigenLatLng.longitude;
+        }
+        if(control == 3){
+            parada2 = mOrigen;
+            txtParada2.getEditText().setText(parada2);
+            parada2_lat = mOrigenLatLng.latitude;
+            parada2_lng=mOrigenLatLng.longitude;
+        }
+        if(control == 4){
+            parada3 = mOrigen;
+            txtParada3.getEditText().setText(parada3);
+            parada3_lat = mOrigenLatLng.latitude;
+            parada3_lng=mOrigenLatLng.longitude;
+        }
+        if(control == 5){
+            destino = mOrigen;
+            txtDireccionDestino.getEditText().setText(destino);
+            destino_lat = mOrigenLatLng.latitude;
+            destino_lng=mOrigenLatLng.longitude;
+        }
     }
 
 
@@ -92,6 +144,7 @@ public class NuevaSolicitudFragment extends Fragment {
         Activity a = getActivity();
         if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         mView = view;
+        fm = getFragmentManager();
         geocoder = new Geocoder(getActivity().getApplicationContext());
         rq = Volley.newRequestQueue(getActivity().getApplicationContext());
         txtDireccionOrigen = (TextInputLayout) view.findViewById(R.id.txtDireccionOrigen);
@@ -120,9 +173,10 @@ public class NuevaSolicitudFragment extends Fragment {
         txtDireccionOrigen.getEditText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).setCountry("MX").build(getActivity().getApplicationContext());
-                startActivityForResult(intent, 100);
+                //List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
+                //Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).setCountry("MX").build(getActivity().getApplicationContext());
+                //startActivityForResult(intent, 100);
+                obtenerUbicacion(1);
             }
         });
 
@@ -130,9 +184,10 @@ public class NuevaSolicitudFragment extends Fragment {
         txtDireccionDestino.getEditText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
+                /*List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).setCountry("MX").build(getActivity().getApplicationContext());
-                startActivityForResult(intent, 200);
+                startActivityForResult(intent, 200);*/
+                obtenerUbicacion(5);
             }
         });
 
@@ -140,9 +195,10 @@ public class NuevaSolicitudFragment extends Fragment {
         txtParada1.getEditText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
+                /*List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).setCountry("MX").build(getActivity().getApplicationContext());
-                startActivityForResult(intent, 300);
+                startActivityForResult(intent, 300);*/
+                obtenerUbicacion(2);
             }
         });
 
@@ -150,9 +206,10 @@ public class NuevaSolicitudFragment extends Fragment {
         txtParada2.getEditText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
+                /*List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).setCountry("MX").build(getActivity().getApplicationContext());
-                startActivityForResult(intent, 400);
+                startActivityForResult(intent, 400);*/
+                obtenerUbicacion(3);
             }
         });
 
@@ -160,9 +217,10 @@ public class NuevaSolicitudFragment extends Fragment {
         txtParada3.getEditText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
+                /*List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG, Place.Field.NAME);
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).setCountry("MX").build(getActivity().getApplicationContext());
-                startActivityForResult(intent, 500);
+                startActivityForResult(intent, 500);*/
+                obtenerUbicacion(4);
             }
         });
 
@@ -180,8 +238,28 @@ public class NuevaSolicitudFragment extends Fragment {
                     return;
                 }
 
-                registrarServicio();
+                /*
+                FragmentTransaction ft = fm.beginTransaction();
+                CuadroDialogoConfirmarSolicitud dialogoFragment = new CuadroDialogoConfirmarSolicitud(getContext(), fm, mView);
+
+                double distance = getDistancia();
+                Bundle b = new Bundle();
+                b.putDouble("distancia", distance);
+
+                dialogoFragment.setArguments(b);
+                CuadroDialogoConfirmarSolicitud tPrev =  (CuadroDialogoConfirmarSolicitud) fm.findFragmentByTag("dialogoConfirmarSolicitud");
+
+                if(tPrev!=null)
+                    ft.remove(tPrev);
+
+                dialogoFragment.setTargetFragment(NuevaSolicitudFragment.this, DIALOGO_FRAGMENT);
+                dialogoFragment.show(fm, "dialogoConfirmarSolicitud");
+                */
+                //registrarServicio();
+                confirmarSolicitud();
             }
+
+
         });
 
         btnAgregarParada.setOnClickListener(new View.OnClickListener() {
@@ -214,6 +292,111 @@ public class NuevaSolicitudFragment extends Fragment {
 
         getUbicacion();
         return view;
+    }
+
+    private void obtenerUbicacion(int control){
+
+        FragmentTransaction ft = fm.beginTransaction();
+        CuadroDialogoObtenerUbicacion dialogoFragment = new CuadroDialogoObtenerUbicacion(getContext(), fm, mView, control);
+
+        CuadroDialogoObtenerUbicacion tPrev =  (CuadroDialogoObtenerUbicacion) fm.findFragmentByTag("dialogoUbicacion");
+
+        if(tPrev!=null)
+            return;//ft.remove(tPrev);
+
+        dialogoFragment.setTargetFragment(NuevaSolicitudFragment.this, DIALOGO_FRAGMENT_UBICACION);
+        dialogoFragment.show(fm, "dialogoUbicacion");
+
+
+        //Intent intent = new Intent(getActivity().getApplicationContext(), ObtenerUbicacion.class);
+        //startActivity(intent);
+
+    }
+
+
+    private void confirmarSolicitud() {
+
+            GlobalVariables variablesGlobales = new GlobalVariables();
+
+            double distance = getDistancia();
+
+            this.origen = txtDireccionOrigen.getEditText().getText().toString();
+            this.destino = txtDireccionDestino.getEditText().getText().toString();
+            this.comentarios = txtComentarios.getEditText().getText().toString();
+            this.parada1 = txtParada1.getEditText().getText().toString();
+            this.parada2 = txtParada2.getEditText().getText().toString();
+            this.parada3 = txtParada3.getEditText().getText().toString();
+
+            //variablesGlobales.URLServicio + "obtener_importe.php?distancia="+String.valueOf(distancia);
+            String url = variablesGlobales.URLServicio + "obtener_importe.php?distancia="+String.valueOf(distance);
+            jrq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    progressBar.setVisibility(View.GONE);
+
+                    JSONArray jsonArray = response.optJSONArray("datos");
+                    JSONObject jsonObject = null;
+
+                    try {
+                        jsonObject = jsonArray.getJSONObject(0);
+                        boolean success =  Boolean.parseBoolean(jsonObject.optString("sucess"));
+
+                        if(success){
+                            double tarifa = jsonObject.optDouble("tarifa");
+
+                            FragmentTransaction ft = fm.beginTransaction();
+                            CuadroDialogoConfirmarSolicitud dialogoFragment = new CuadroDialogoConfirmarSolicitud(getContext(), fm, mView);
+
+                            Bundle b = new Bundle();
+                            b.putString("origen", origen);
+                            b.putString("destino", destino);
+                            b.putString("comentarios", comentarios);
+                            b.putString("parada1", parada1);
+                            b.putString("parada2", parada2);
+                            b.putString("parada3", parada3);
+                            b.putDouble("tarifa", tarifa);
+
+
+                            dialogoFragment.setArguments(b);
+                            CuadroDialogoConfirmarSolicitud tPrev =  (CuadroDialogoConfirmarSolicitud) fm.findFragmentByTag("dialogoConfirmarSolicitud");
+
+                            if(tPrev!=null)
+                                return;//ft.remove(tPrev);
+
+                            dialogoFragment.setTargetFragment(NuevaSolicitudFragment.this, DIALOGO_FRAGMENT);
+                            dialogoFragment.show(fm, "dialogoConfirmarSolicitud");
+
+                        }else{
+                            String msg = jsonObject.optString("msg");
+                            Toast.makeText(mView.getContext(),msg, Toast.LENGTH_SHORT).show();
+                        }
+
+
+
+                    } catch (JSONException e) {
+                        //e.printStackTrace();
+                        Toast.makeText(mView.getContext(),"Error: " + e.toString(), Toast.LENGTH_SHORT).show();
+
+                    }
+
+
+
+
+                }
+
+
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getContext(),"Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            );
+
+            rq.add(jrq);
+
+
+
     }
 
     private  void getUbicacion(){
@@ -306,10 +489,7 @@ public class NuevaSolicitudFragment extends Fragment {
 
     }
 
-    private void registrarServicio(){
-        progressBar.setVisibility(View.VISIBLE);
-        GlobalVariables variablesGlobales = new GlobalVariables();
-
+    private double getDistancia(){
         double distanceOrigenParada1 = 0;
         double distanceParada1Parada2 = 0;
         double distanceParada2Parada3 = 0;
@@ -374,6 +554,15 @@ public class NuevaSolicitudFragment extends Fragment {
 
 
         double distance = (distanceOrigenParada1 + distanceParada1Parada2 + distanceParada2Parada3 + distanceParada3Destino + distanceOrigenDestino + distanceParada1Destino + distanceParada2Destino) / 1000;
+
+        return distance;
+    }
+
+    private void registrarServicio(){
+        progressBar.setVisibility(View.VISIBLE);
+        GlobalVariables variablesGlobales = new GlobalVariables();
+
+        double distance = getDistancia();
 
         String origen = txtDireccionOrigen.getEditText().getText().toString();
         String destino = txtDireccionDestino.getEditText().getText().toString();
@@ -644,6 +833,7 @@ public class NuevaSolicitudFragment extends Fragment {
             Toast.makeText(getActivity().getApplicationContext(),status.getStatusMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
 
 }

@@ -118,6 +118,32 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layEditPerfil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:src="@drawable/edit_perfil"
+                />
+
+            <TextView
+                android:id="@+id/txtEditPerfil"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="Editar Perfil"
+                android:textColor="#000"
+                android:textSize="20sp"
+                app:fontFamily="@font/fredoka_one" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/laySalir"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

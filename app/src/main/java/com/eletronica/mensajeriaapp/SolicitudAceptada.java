@@ -58,6 +58,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
@@ -69,17 +70,18 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import com.eletronica.mensajeriaapp.utils.FetchURL;
+import com.eletronica.mensajeriaapp.utils.TaskLoadedCallback;
+
 
 public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, TaskLoadedCallback {
     GoogleMap mMap;
     SupportMapFragment mapFragment;
     Context context;
     JsonObjectRequest jsonObjectRequest;
     RequestQueue request;
     Location location;
-    GPS_controler gpsTracker;
-
     RequestQueue requestFoto;
 
     LocationRequest mLocationRequest;
@@ -129,6 +131,8 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
     int status = 0;
     int id_usuario = 0;
 
+    private Polyline currentPolyline;
+
     boolean solicitud_activa = true;
 
     ProgressBar progressBar;
@@ -145,7 +149,6 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         context = getApplicationContext();
 
-        gpsTracker = new GPS_controler(this);
         FragmentManager fm = getSupportFragmentManager();
         mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragmentAceptada");
         if (mapFragment == null) {
@@ -230,19 +233,6 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
             layParada3.setVisibility(View.VISIBLE);
             txtParada3.setText(parada3);
         }
-        /*
-        byte[] foto = pedido.getFoto_mensajero();
-
-        if (foto != null) {
-            byte[] encodeByte = (byte[]) (foto);
-            if(encodeByte.length > 0){
-                Bitmap photobmp = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-                ivImagen.setImageBitmap(photobmp);
-
-            }
-        }
-
-        */
 
         cargarImagenUsuario();
 
@@ -267,15 +257,17 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
                 }
             }
         });
+
         if(status == 1) {
             handler.postDelayed(new Runnable() {
                 public void run() {
-                    //if(solicitud_activa)
                     verificarStatus();
                     handler.postDelayed(this, delay);
                 }
             }, delay);
         }
+
+
     }
 
     public void cargarImagenUsuario(){
@@ -324,24 +316,7 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
 
                         status = status_solicitud;
                         setLocationDriver(driver);
-                        /*if(success){
-                            if(status == 3){
-                                solicitud_activa = false;
-                                String msg = jsonObject.optString("msg");
-                                AlertDialog.Builder builder= new AlertDialog.Builder(SolicitudAceptada.this);
-                                builder.setMessage(msg);
-                                builder.setTitle(pedido.getOrigen().toString()+" - "+pedido.getDestino().toString());
-                                builder.setCancelable(false);
-                                builder.setPositiveButton("Volver a las solicitudes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        finish();
-                                    }
-                                });
-                                AlertDialog alertDialog = builder.create();
-                                alertDialog.show();
-                            }
-                        }*/
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                         //Toast.makeText(getApplicationContext(),"Error: " + e.toString(), Toast.LENGTH_SHORT).show();
@@ -368,13 +343,6 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-
-
-
-                //23.2336172,origen_longitud=106.4153152,destino_latitud=23.2313368,destino_longitud=106.4072385
-                //map.setMyLocationEnabled(true);
-                //setUpMap();
-
 
                 LatLng marcador1 = new LatLng(origenLat, origenLng);
                 LatLng marcador2 = new LatLng(destinoLat, destinoLng);
@@ -439,10 +407,10 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
 
         runOnUiThread(new Runnable() {
             public void run() {
-                new SolicitudAceptada.MyAsyncTask().execute(0);
+                new FetchURL(SolicitudAceptada.this).execute(getUrl(String.valueOf(origenLat), String.valueOf(origenLng),
+                        String.valueOf(destinoLat), String.valueOf(destinoLng), "driving"),"driving");
             }
         });
-
 
     }
 
@@ -471,22 +439,12 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
-    private void setLocationDriver(LatLng location){
-        if(status == 1){
-            if (mCurrLocationMarker != null) {
-                mCurrLocationMarker.remove();
-            }
-            //Place current location marker
-            LatLng latLng = location;
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_repartidor));
-            mCurrLocationMarker = mMap.addMarker(markerOptions);
-        }
-    }
-    public void ObtenerRuta(String latInicial, String lngInicial, String latFinal, String lngFinal){
+    private String getUrl(String latInicial, String lngInicial, String latFinal, String lngFinal, String directionMode) {
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
 
-        String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + latInicial + "," + lngInicial + "&destination=" + latFinal + "," + lngFinal + "&key=AIzaSyBxcLXHYB8gQW5Xg112ivn6Gko3YyOveKU&mode=drive";
+
+        String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + latInicial + "," + lngInicial + "&destination=" + latFinal + "," + lngFinal + "&" + mode +  "&key=AIzaSyBxcLXHYB8gQW5Xg112ivn6Gko3YyOveKU";
 
         String wayPoints = "";
 
@@ -503,207 +461,29 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
         }
         wayPoints = "&waypoints=" + wayPoints;
         url = url + wayPoints;
-
-        jsonObjectRequest=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                JSONArray jRoutes = null;
-                JSONArray jLegs = null;
-                JSONArray jSteps = null;
-
-
-                try {
-
-                    jRoutes = response.getJSONArray("routes");
-
-
-                    for(int i=0;i<jRoutes.length();i++){
-
-                        jLegs = ( (JSONObject)jRoutes.get(i)).getJSONArray("legs");
-                        List<HashMap<String, String>> path = new ArrayList<HashMap<String, String>>();
-
-                        for(int j=0;j<jLegs.length();j++){
-                            jSteps = ( (JSONObject)jLegs.get(j)).getJSONArray("steps");
-
-
-                            for(int k=0;k<jSteps.length();k++){
-
-                                String polyline = "";
-                                polyline = (String)((JSONObject)((JSONObject)jSteps.get(k)).get("polyline")).get("points");
-                                List<LatLng> list = decodePoly(polyline);
-
-                                for(int l=0;l<list.size();l++){
-
-                                    HashMap<String, String> hm = new HashMap<String, String>();
-                                    hm.put("lat", Double.toString(((LatLng)list.get(l)).latitude) );
-                                    hm.put("lng", Double.toString(((LatLng)list.get(l)).longitude) );
-                                    path.add(hm);
-
-                                }
-                            }
-
-                            Utils.routes.add(path);
-
-                            /*Intent intent = new Intent(MapaInicio.this, Trasarlinea.class);
-                            startActivity(intent);*/
-
-                            trazarLinea();
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }catch (Exception e){
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "No se puede conectar "+error.toString(), Toast.LENGTH_LONG).show();
-                System.out.println();
-                Log.d("ERROR: ", error.toString());
-            }
-        }
-        );
-
-        request.add(jsonObjectRequest);
-
+        return url;
     }
 
-    public void trazarLinea(){
-        ArrayList<LatLng>points=null;
-        PolylineOptions lineOptions=null;
-
-        for(int i = 0; i< Utils.routes.size(); i++){
-            Log.d("aqui", String.valueOf(Utils.routes.size()));
-            points = new ArrayList<LatLng>();
-            lineOptions = new PolylineOptions();
-
-
-            List<HashMap<String, String>> path = Utils.routes.get(i);
-
-
-            for(int j=0;j<path.size();j++){
-                HashMap<String,String> point = path.get(j);
-
-                double lat = Double.parseDouble(point.get("lat"));
-                double lng = Double.parseDouble(point.get("lng"));
-                LatLng position = new LatLng(lat, lng);
-
-                points.add(position);
+    private void setLocationDriver(LatLng location){
+        if(status == 1){
+            if (mCurrLocationMarker != null) {
+                mCurrLocationMarker.remove();
             }
-
-
-            lineOptions.addAll(points);
-
-            lineOptions.width(9);
-
-            lineOptions.color(Color.BLUE);
+            //Place current location marker
+            LatLng latLng = location;
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_repartidor));
+            mCurrLocationMarker = mMap.addMarker(markerOptions);
         }
-
-        mMap.addPolyline(lineOptions);
     }
 
-    private List<LatLng> decodePoly(String encoded) {
-
-        List<LatLng> poly = new ArrayList<LatLng>();
-        int index = 0, len = encoded.length();
-        int lat = 0, lng = 0;
-
-        while (index < len) {
-            int b, shift = 0, result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += dlat;
-
-            shift = 0;
-            result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += dlng;
-
-            LatLng p = new LatLng((((double) lat / 1E5)),
-                    (((double) lng / 1E5)));
-            poly.add(p);
-        }
-
-        return poly;
-    }
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
 
-    public  class MyAsyncTask extends AsyncTask<Integer, Integer, String> {
-
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-
-
-
-        }
-
-        @Override
-        protected String doInBackground(Integer... integers) {
-
-            try {
-                while (location == null){
-                    location = gpsTracker.getLocation();
-                    publishProgress(1);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            location = gpsTracker.getLocation();
-            publishProgress(2);
-
-            return "Fin";
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-
-            if(values[0] == 0){
-                Log.d("Asyntask", "null");
-            }else{
-                ObtenerRuta(String.valueOf(origenLat), String.valueOf(origenLng),
-                        String.valueOf(destinoLat), String.valueOf(destinoLng));
-
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.d("asyntask", "FIN");
-
-        }
-    }
-
-    private Boolean permissionsGranted() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == ((PackageManager.PERMISSION_GRANTED));
-    }
-    private void startInstalledAppDetailsActivity() {
-        Intent i = new Intent();
-        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        i.addCategory(Intent.CATEGORY_DEFAULT);
-        i.setData(Uri.parse("package:" + context.getPackageName()));
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);
-    }
 
     /*nuevo codigo*/
 
@@ -817,4 +597,10 @@ public class SolicitudAceptada extends AppCompatActivity implements OnMapReadyCa
     }
 
 
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
+    }
 }

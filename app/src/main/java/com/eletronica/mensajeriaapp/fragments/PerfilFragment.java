@@ -3,6 +3,7 @@ package com.eletronica.mensajeriaapp.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -25,8 +26,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
+import com.eletronica.mensajeriaapp.EditPerfil;
 import com.eletronica.mensajeriaapp.GlobalVariables;
+import com.eletronica.mensajeriaapp.InicioSesion;
 import com.eletronica.mensajeriaapp.R;
+import com.eletronica.mensajeriaapp.Registro;
 
 import org.json.JSONException;
 
@@ -44,6 +48,7 @@ public class PerfilFragment extends Fragment {
     TextView txtUsuario;
     TextView txtPerfil;
     LinearLayout btnSalir;
+    LinearLayout btnEditPerfil;
     CircleImageView ivFoto;
 
     private SharedPreferences prefs;
@@ -65,6 +70,7 @@ public class PerfilFragment extends Fragment {
         txtUsuario = (TextView) view.findViewById(R.id.txtUsuarioPerfil);
         txtPerfil = (TextView) view.findViewById(R.id.txtPerfil);
         btnSalir = (LinearLayout) view.findViewById(R.id.laySalir);
+        btnEditPerfil = (LinearLayout) view.findViewById(R.id.layEditPerfil);
         //ImageView ivFoto = (ImageView) view.findViewById(R.id.imageViewPerfil);
         ivFoto = (CircleImageView) view.findViewById(R.id.imageViewPerfil);
 
@@ -98,6 +104,22 @@ public class PerfilFragment extends Fragment {
                 editor.clear();
                 editor.commit();
                 getActivity().finish();
+            }
+        });
+
+        btnEditPerfil.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), EditPerfil.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GlobalVariables vg = new GlobalVariables();
+                int rol = vg.rol;
+                int idUsuario = vg.id_usuario;
+                intent.putExtra("Rol", rol);
+                intent.putExtra("IDUsuario", idUsuario);
+                startActivity(intent);
+
+
             }
         });
 

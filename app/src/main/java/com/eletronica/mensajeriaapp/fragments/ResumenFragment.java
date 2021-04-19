@@ -4,12 +4,15 @@ package com.eletronica.mensajeriaapp.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -59,6 +62,9 @@ public class ResumenFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     Context mContext;
 
+    ImageView ivSinConexion;
+    ConnectivityManager connectivityManager;
+
     FragmentManager fm;
     FragmentTransaction ft;
 
@@ -80,7 +86,20 @@ public class ResumenFragment extends Fragment implements SwipeRefreshLayout.OnRe
         swipeContainer.setOnRefreshListener(this);
         this.mView = view;
 
-        loadSolicitudes(mView);
+        ivSinConexion = (ImageView) view.findViewById(R.id.ivSinConexionResumenCustomer);
+        ivSinConexion.setVisibility(View.INVISIBLE);
+
+        connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            ivSinConexion.setVisibility(View.INVISIBLE);
+            loadSolicitudes(mView);
+
+        }else{
+            ivSinConexion.setVisibility(View.VISIBLE);
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
+            swipeContainer.setRefreshing(false);
+        }
 
         fm = getFragmentManager();
         ft = fm.beginTransaction();
@@ -135,7 +154,7 @@ public class ResumenFragment extends Fragment implements SwipeRefreshLayout.OnRe
             request = Volley.newRequestQueue(getContext());
             request.add(jsonObjectRequest);
         } catch (Exception e) {
-            e.printStackTrace();
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
         }
 
     }
@@ -176,13 +195,22 @@ public class ResumenFragment extends Fragment implements SwipeRefreshLayout.OnRe
             RequestQueue requestQueue = Volley.newRequestQueue(vista.getContext());
             requestQueue.add(stringRequest);
         } catch (Exception e) {
-            e.printStackTrace();
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onRefresh() {
-        loadSolicitudes(mView);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            ivSinConexion.setVisibility(View.INVISIBLE);
+            loadSolicitudes(mView);
+
+        }else{
+            ivSinConexion.setVisibility(View.VISIBLE);
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
+            swipeContainer.setRefreshing(false);
+        }
     }
 
     private class ParseJSonDataClass extends AsyncTask<Void, Void, Void> {
@@ -289,12 +317,12 @@ public class ResumenFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         }
                     } catch (JSONException e) {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                //e.printStackTrace();
             }
             return null;
         }

@@ -2,9 +2,25 @@ package com.eletronica.mensajeriaapp;
 
 
 public class User {
-    private String usuario,nombre, descripcion_rol,celular, status_descripcion,status, token;
+    private String usuario,nombre, descripcion_rol,celular, status_descripcion,status, token, placas, password;
     private int  id_usuario, rol;
     private byte[] foto;
+
+    public String getPlacas() {
+        return placas;
+    }
+
+    public void setPlacas(String placas) {
+        this.placas = placas;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getStatus_descripcion() {
         return status_descripcion;

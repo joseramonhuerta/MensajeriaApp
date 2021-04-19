@@ -10,7 +10,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-feature android:name="android.hardware.location.gps" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -20,10 +22,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:ignore="GoogleAppIndexingWarning"
-        android:theme="@style/AppTheme">
-        <activity android:name=".PrincipalAdmin"></activity>
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".EditPerfil" />
+        <activity android:name=".PrincipalAdmin" />
         <activity android:name=".PrincipalCustomer" />
         <activity android:name=".SolicitudEnCurso" />
         <!--
@@ -44,8 +47,9 @@
         <activity android:name=".SolicitudAceptada" />
         <activity android:name=".Registro" />
         <activity android:name=".InicioSesion" />
-        <activity android:name=".Principal"
-            android:launchMode="singleTop"/>
+        <activity
+            android:name=".Principal"
+            android:launchMode="singleTop" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,9 +65,9 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"
-                />
+                android:resource="@xml/file_paths" />
         </provider>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

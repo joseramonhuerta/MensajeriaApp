@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -63,6 +64,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
@@ -75,9 +77,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import com.eletronica.mensajeriaapp.utils.FetchURL;
+import com.eletronica.mensajeriaapp.utils.TaskLoadedCallback;
 
 public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener,TaskLoadedCallback {
     GoogleMap mMap;
     SupportMapFragment mapFragment;
     Context context;
@@ -87,7 +91,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
     Location location;
     GPS_controler gpsTracker;
 
-
+    LocationManager locationManager;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
@@ -134,6 +138,8 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
 
     Pedido pedido=null;
 
+    private Polyline currentPolyline;
+
     int id_pedido = 0;
     int id_usuario = 0;
 
@@ -147,6 +153,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
     final int delay = 3000; // 1000 milliseconds == 1 second
 
     GlobalVariables vg;
+    AlertDialog alertGPS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +162,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         context = getApplicationContext();
 
-        gpsTracker = new GPS_controler(this);
+        // gpsTracker = new GPS_controler(this);
         FragmentManager fm = getSupportFragmentManager();
         mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragmentEnCurso");
         if (mapFragment == null) {
@@ -168,6 +175,13 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         mapFragment.getMapAsync(this);
         request = Volley.newRequestQueue(getApplicationContext());
         requestFoto = Volley.newRequestQueue(getApplicationContext());
+
+        boolean estado = estadoGPS();
+
+        if(estado == false){
+            AlertNoGPS();
+        }
+
         txtNombre = (TextView) findViewById(R.id.txtNombreUsuarioSolicitudEnCurso);
         txtCalificacion = (TextView) findViewById(R.id.txtCalificacionSolicitudEnCurso);
         txtOrigen = (TextView) findViewById(R.id.txtOrigenSolicitudEnCurso);
@@ -345,6 +359,38 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         }, delay);
     }
 
+    private boolean estadoGPS() {
+        boolean activo;
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+            activo = true;
+        else
+            activo = false;
+
+        return activo;
+
+    }
+
+    private void AlertNoGPS() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("El GPS no esta activado, desea activarlo?")
+                .setCancelable(false)
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertGPS = builder.create();
+        alertGPS.show();
+    }
+
     public void cargarImagenUsuario(){
 
         String urlImg = vg.URLServicio + "fotos/" + String.valueOf(id_usuario)+".jpg";
@@ -404,7 +450,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
                             }
                         }
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                         //Toast.makeText(getApplicationContext(),"Error: " + e.toString(), Toast.LENGTH_SHORT).show();
                     }
 
@@ -415,14 +461,14 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getApplicationContext(),"Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(),"Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
             );
 
             request.add(jsonObjectRequest);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -598,9 +644,11 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
 
         runOnUiThread(new Runnable() {
             public void run() {
-                new SolicitudEnCurso.MyAsyncTask().execute(0);
+                new FetchURL(SolicitudEnCurso.this).execute(getUrl(String.valueOf(origenLat), String.valueOf(origenLng),
+                        String.valueOf(destinoLat), String.valueOf(destinoLng), "driving"),"driving");
             }
         });
+
 
     }
 
@@ -646,9 +694,25 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         ubicacionLat = location.getLatitude();
         ubicacionLng = location.getLongitude();
     }
-    public void ObtenerRuta(String latInicial, String lngInicial, String latFinal, String lngFinal){
 
-        String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + latInicial + "," + lngInicial + "&destination=" + latFinal + "," + lngFinal + "&key=AIzaSyBxcLXHYB8gQW5Xg112ivn6Gko3YyOveKU&mode=drive";
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
+    }
+
+    private String getUrl(String latInicial, String lngInicial, String latFinal, String lngFinal, String directionMode) {
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+
+
+        String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + latInicial + "," + lngInicial + "&destination=" + latFinal + "," + lngFinal + "&" + mode +  "&key=AIzaSyBxcLXHYB8gQW5Xg112ivn6Gko3YyOveKU";
 
         String wayPoints = "";
 
@@ -665,210 +729,8 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
         }
         wayPoints = "&waypoints=" + wayPoints;
         url = url + wayPoints;
-
-
-        jsonObjectRequest=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                JSONArray jRoutes = null;
-                JSONArray jLegs = null;
-                JSONArray jSteps = null;
-
-
-                try {
-
-                    jRoutes = response.getJSONArray("routes");
-
-
-                    for(int i=0;i<jRoutes.length();i++){
-
-                        jLegs = ( (JSONObject)jRoutes.get(i)).getJSONArray("legs");
-                        List<HashMap<String, String>> path = new ArrayList<HashMap<String, String>>();
-
-                        for(int j=0;j<jLegs.length();j++){
-                            jSteps = ( (JSONObject)jLegs.get(j)).getJSONArray("steps");
-
-
-                            for(int k=0;k<jSteps.length();k++){
-
-                                String polyline = "";
-                                polyline = (String)((JSONObject)((JSONObject)jSteps.get(k)).get("polyline")).get("points");
-                                List<LatLng> list = decodePoly(polyline);
-
-                                for(int l=0;l<list.size();l++){
-
-                                    HashMap<String, String> hm = new HashMap<String, String>();
-                                    hm.put("lat", Double.toString(((LatLng)list.get(l)).latitude) );
-                                    hm.put("lng", Double.toString(((LatLng)list.get(l)).longitude) );
-                                    path.add(hm);
-
-                                }
-                            }
-
-                            Utils.routes.add(path);
-
-                            /*Intent intent = new Intent(MapaInicio.this, Trasarlinea.class);
-                            startActivity(intent);*/
-
-                            trazarLinea();
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }catch (Exception e){
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "No se puede conectar "+error.toString(), Toast.LENGTH_LONG).show();
-                System.out.println();
-                Log.d("ERROR: ", error.toString());
-            }
-        }
-        );
-
-        request.add(jsonObjectRequest);
-
+        return url;
     }
-
-    public void trazarLinea(){
-        ArrayList<LatLng>points=null;
-        PolylineOptions lineOptions=null;
-
-        for(int i = 0; i< Utils.routes.size(); i++){
-            Log.d("aqui", String.valueOf(Utils.routes.size()));
-            points = new ArrayList<LatLng>();
-            lineOptions = new PolylineOptions();
-
-
-            List<HashMap<String, String>> path = Utils.routes.get(i);
-
-
-            for(int j=0;j<path.size();j++){
-                HashMap<String,String> point = path.get(j);
-
-                double lat = Double.parseDouble(point.get("lat"));
-                double lng = Double.parseDouble(point.get("lng"));
-                LatLng position = new LatLng(lat, lng);
-
-                points.add(position);
-            }
-
-
-            lineOptions.addAll(points);
-
-            lineOptions.width(9);
-
-            lineOptions.color(Color.BLUE);
-        }
-
-        mMap.addPolyline(lineOptions);
-    }
-
-    private List<LatLng> decodePoly(String encoded) {
-
-        List<LatLng> poly = new ArrayList<LatLng>();
-        int index = 0, len = encoded.length();
-        int lat = 0, lng = 0;
-
-        while (index < len) {
-            int b, shift = 0, result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += dlat;
-
-            shift = 0;
-            result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += dlng;
-
-            LatLng p = new LatLng((((double) lat / 1E5)),
-                    (((double) lng / 1E5)));
-            poly.add(p);
-        }
-
-        return poly;
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
-
-    }
-
-    public  class MyAsyncTask extends AsyncTask<Integer, Integer, String> {
-
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-
-
-
-        }
-
-        @Override
-        protected String doInBackground(Integer... integers) {
-
-            try {
-                while (location == null){
-                    location = gpsTracker.getLocation();
-                    publishProgress(1);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            location = gpsTracker.getLocation();
-            publishProgress(2);
-
-            return "Fin";
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-
-            if(values[0] == 0){
-                Log.d("Asyntask", "null");
-            }else{
-                ObtenerRuta(String.valueOf(origenLat), String.valueOf(origenLng),
-                        String.valueOf(destinoLat), String.valueOf(destinoLng));
-
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.d("asyntask", "FIN");
-
-        }
-    }
-
-    private Boolean permissionsGranted() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == ((PackageManager.PERMISSION_GRANTED));
-    }
-    private void startInstalledAppDetailsActivity() {
-        Intent i = new Intent();
-        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        i.addCategory(Intent.CATEGORY_DEFAULT);
-        i.setData(Uri.parse("package:" + context.getPackageName()));
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);
-    }
-
-    /*nuevo codigo*/
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -902,29 +764,20 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
     public void onLocationChanged(Location location)
     {
         setLocationDriver(location);
-
-
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission, please accept to use location functionality")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
                                 ActivityCompat.requestPermissions(SolicitudEnCurso.this,
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                         MY_PERMISSIONS_REQUEST_LOCATION );
@@ -932,10 +785,7 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
                         })
                         .create()
                         .show();
-
-
             } else {
-                // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION );
@@ -948,34 +798,21 @@ public class SolicitudEnCurso extends AppCompatActivity implements OnMapReadyCal
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
-
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
-                        //mMap.setMyLocationEnabled(true);
                         setUpMap();
                     }
-
                 } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 

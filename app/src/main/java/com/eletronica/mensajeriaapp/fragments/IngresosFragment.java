@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -17,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -64,6 +67,9 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     Context mContext;
 
+    ImageView ivSinConexion;
+    ConnectivityManager connectivityManager;
+
     FragmentManager fm;
     FragmentTransaction ft;
 
@@ -84,7 +90,20 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
         swipeContainer.setOnRefreshListener(this);
         this.mView = view;
 
-        loadSolicitudes(mView);
+        ivSinConexion = (ImageView) view.findViewById(R.id.ivSinConexionResumen);
+        ivSinConexion.setVisibility(View.INVISIBLE);
+
+        connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            ivSinConexion.setVisibility(View.INVISIBLE);
+            loadSolicitudes(mView);
+
+        }else{
+            ivSinConexion.setVisibility(View.VISIBLE);
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
+            swipeContainer.setRefreshing(false);
+        }
 
         fm = getFragmentManager();
         ft = fm.beginTransaction();
@@ -135,7 +154,7 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
                         public void onErrorResponse(VolleyError error) {
 
                             // Showing error message if something goes wrong.
-                            Toast.makeText(vista.getContext(),error.getMessage(),Toast.LENGTH_LONG).show();
+                            //Toast.makeText(vista.getContext(),error.getMessage(),Toast.LENGTH_LONG).show();
 
                         }
                     });
@@ -144,13 +163,22 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
             RequestQueue requestQueue = Volley.newRequestQueue(vista.getContext());
             requestQueue.add(stringRequest);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
     @Override
     public void onRefresh() {
-        loadSolicitudes(mView);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            ivSinConexion.setVisibility(View.INVISIBLE);
+            loadSolicitudes(mView);
+
+        }else{
+            ivSinConexion.setVisibility(View.VISIBLE);
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
+            swipeContainer.setRefreshing(false);
+        }
     }
 
     private class ParseJSonDataClass extends AsyncTask<Void, Void, Void> {
@@ -257,12 +285,12 @@ public class IngresosFragment extends Fragment implements SwipeRefreshLayout.OnR
                         }
                     } catch (JSONException e) {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                // 2e.printStackTrace();
             }
             return null;
         }

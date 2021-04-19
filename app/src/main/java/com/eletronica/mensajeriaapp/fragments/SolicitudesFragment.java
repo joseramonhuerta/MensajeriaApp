@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.media.AudioAttributes;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -35,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -88,6 +91,8 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
     RecyclerViewAdapterSolicitudes adapter;
     static View mView;
 
+    ConnectivityManager connectivityManager;
+
     Context mContext;
 
     FragmentManager fm;
@@ -96,6 +101,8 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
     CuadroDialogoSolicitud tPrev;
     boolean actualizaLista = false;
     Boolean readyToUpdateList = true;
+
+    ImageView ivSinConexion;
 
     public static final int DIALOGO_FRAGMENT = 1;
     public static final String CHANNEL_ID = "NOTIFICACION";
@@ -132,7 +139,8 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.srlContainer);
         swipeContainer.setOnRefreshListener(this);
         this.mView = view;
-
+        ivSinConexion = (ImageView) view.findViewById(R.id.ivSinConexion);
+        ivSinConexion.setVisibility(View.INVISIBLE);
         //listView.addItemDecoration(new SimpleDividerItemDecoration(this));
 
         //loadSolicitudes(mView);
@@ -163,14 +171,30 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
             }
         });*/
         //cuando cargue la vista se deben de cargar todas las solicitudes y guardar los id en un arreglo y
-        loadSolicitudes(mView);
+        connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            ivSinConexion.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.VISIBLE);
+            loadSolicitudes(mView);
+
+        }else{
+            listView.setVisibility(View.INVISIBLE);
+            pedidosList = null;
+            ivSinConexion.setVisibility(View.VISIBLE);
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
+            swipeContainer.setRefreshing(false);
+        }
+
 
 
         handler.postDelayed(new Runnable() {
             public void run() {
                 //funcion para checar los estatus de los pedidos que ya se le pasaron
-                if(readyToUpdateList)
-                    verificaStatusSolicitudes(mView);
+                if(readyToUpdateList){
+                        verificaStatusSolicitudes(mView);
+                }
+
 
                 handler.postDelayed(this, delay);
             }
@@ -225,17 +249,20 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
     private String obtenerIdSolicitudes(){
         String ids = "";
         Pedido p;
-        for (int i = 0; i < pedidosList.size(); i++) {
-            int id;
-            p = pedidosList.get(i);
-            id = p.getId_pedido();
+        if(pedidosList != null){
+            if(pedidosList.size() > 0) {
+                for (int i = 0; i < pedidosList.size(); i++) {
+                    int id;
+                    p = pedidosList.get(i);
+                    id = p.getId_pedido();
 
-            ids += String.valueOf(id) + ",";
+                    ids += String.valueOf(id) + ",";
+                }
+
+                if (ids.length() > 0)
+                    ids = ids.substring(0, ids.length() - 1);
+            }
         }
-
-        if(ids.length() > 0)
-            ids = ids.substring(0, ids.length() -1);
-
         return ids;
     }
 
@@ -322,7 +349,19 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        loadSolicitudes(mView);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            ivSinConexion.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.VISIBLE);
+            loadSolicitudes(mView);
+
+        }else{
+            ivSinConexion.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.INVISIBLE);
+            pedidosList = null;
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
+            swipeContainer.setRefreshing(false);
+        }
     }
 
     private class ParseJSonDataClass extends AsyncTask<Void, Void, Void> {
@@ -829,7 +868,20 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onResume() {
         super.onResume();
-        loadSolicitudes(mView);
+        connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            ivSinConexion.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.VISIBLE);
+            loadSolicitudes(mView);
+
+        }else{
+            listView.setVisibility(View.INVISIBLE);
+            pedidosList = null;
+            ivSinConexion.setVisibility(View.VISIBLE);
+            Toast.makeText(getContext(),"No se pudo conectar, verifique su conexión a internet",Toast.LENGTH_LONG).show();
+        }
+
     }
 
 

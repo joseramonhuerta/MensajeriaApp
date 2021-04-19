@@ -48,4 +48,11 @@
         android:background="@android:color/transparent"
         />
 
+    <ImageView
+        android:id="@+id/ivSinConexion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/sin_conexion"
+        android:visibility="gone"
+        android:layout_centerInParent="true"></ImageView>
 </RelativeLayout>

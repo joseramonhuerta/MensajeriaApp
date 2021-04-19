@@ -83,6 +83,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
 
             String user = prefs.getString("user", "");
             String nombre = prefs.getString("nombre", "");
+            String celular = prefs.getString("celular", "");
             int id_user = prefs.getInt("id_usuario", 0);
             int rol = prefs.getInt("rol", 0);
             String descripcion_rol = prefs.getString("descripcion_rol", "");
@@ -93,6 +94,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             usuario.setNombre(nombre);
             usuario.setId_usuario(id_user);
             usuario.setRol(rol);
+            usuario.setCelular(celular);
             usuario.setDescripcion_rol(descripcion_rol);
             usuario.setToken(token);
 
@@ -100,6 +102,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             variablesGlobales.id_usuario = id_user;
             variablesGlobales.nombre = nombre;
             variablesGlobales.usuario = user;
+            variablesGlobales.celular = celular;
             variablesGlobales.rol = rol;
             variablesGlobales.descripcion_rol = descripcion_rol;
             variablesGlobales.token = token;
@@ -231,6 +234,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             usuario.setDescripcion_rol(jsonObject.optString("descripcion_rol"));
             usuario.setFoto(Base64.decode(jsonObject.getString("foto"), Base64.DEFAULT));
             usuario.setToken(jsonObject.optString("token"));
+            usuario.setCelular(jsonObject.optString("celular"));
 
             GlobalVariables variablesGlobales = new GlobalVariables();
             variablesGlobales.id_usuario = usuario.getId_usuario();
@@ -240,7 +244,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
             variablesGlobales.descripcion_rol = usuario.getDescripcion_rol();
             variablesGlobales.foto = usuario.getFoto();
             variablesGlobales.token = usuario.getToken();
-
+            variablesGlobales.celular = usuario.getCelular();
             String topic = "";
 
             if(usuario.getRol() == 1)
@@ -266,6 +270,7 @@ public class InicioSesion extends AppCompatActivity implements Response.Listener
         editor.putInt("id_usuario",  usuario.getId_usuario());
         editor.putString("nombre", usuario.getNombre());
         editor.putInt("rol",  usuario.getRol());
+        editor.putString("celular",  usuario.getCelular());
         editor.putString("descripcion_rol",usuario.getDescripcion_rol());
         editor.putString("token", usuario.getToken());
 

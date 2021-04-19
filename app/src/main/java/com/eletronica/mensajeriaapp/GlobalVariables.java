@@ -10,5 +10,6 @@ public class GlobalVariables {
     public static int rol;
     public static byte[] foto;
     public static String token;
+    public static String celular;
 }
 
