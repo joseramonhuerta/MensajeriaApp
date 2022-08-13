@@ -341,8 +341,8 @@ public class CuadroDialogoObtenerUbicacion extends DialogFragment implements OnM
                     String city = addressList.get(0).getLocality();
                     String country = addressList.get(0).getCountryName();
                     String address = addressList.get(0).getAddressLine(0);
-                    mOrigin = address + " " + city;
-                    mAutocomplete.setText(address + " " + city);
+                    mOrigin = address;
+                    mAutocomplete.setText(address);
                 } catch (Exception e) {
                     Log.d("Error: ", "Mensaje error: " + e.getMessage());
                 }
@@ -352,12 +352,12 @@ public class CuadroDialogoObtenerUbicacion extends DialogFragment implements OnM
 
     private void instanceAutocompleteOrigin() {
         mAutocomplete = (AutocompleteSupportFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.placeAutocompleteOrigin);
-        mAutocomplete.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
+        mAutocomplete.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME,Place.Field.ADDRESS));
         mAutocomplete.setHint("Lugar de recogida");
         mAutocomplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
-                mOrigin = place.getName();
+                mOrigin = place.getAddress();
                 mOriginLatLng = place.getLatLng();
                 Log.d("PLACE", "Name: " + mOrigin);
                 Log.d("PLACE", "Lat: " + mOriginLatLng.latitude);

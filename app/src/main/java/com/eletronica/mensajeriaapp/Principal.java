@@ -22,7 +22,7 @@ public class Principal extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        showSeletedFragment(new SolicitudesFragment(), "SolicitudesFragment", R.id.menu_solicitudes);
+        showSeletedFragment(new SolicitudesFragment(), "", R.id.menu_solicitudes);
 
         mMenu = (BottomNavigationView) findViewById(R.id.menu_principal);
 

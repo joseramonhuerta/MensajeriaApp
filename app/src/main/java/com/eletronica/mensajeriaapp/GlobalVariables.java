@@ -1,4 +1,4 @@
-package com.eletronica.mensajeriaapp;
+  package com.eletronica.mensajeriaapp;
 
 public class GlobalVariables {
     public static final String URLServicio = "https://erp.servfix.com.mx/ws/mensajeriaapp/";

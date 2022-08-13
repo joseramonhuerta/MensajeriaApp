@@ -150,7 +150,7 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
         ft = fm.beginTransaction();
 
         //listView.setClickable(true);
-        /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
@@ -169,7 +169,7 @@ public class SolicitudesFragment extends Fragment implements SwipeRefreshLayout.
                 dialogoFragment.setTargetFragment(SolicitudesFragment.this, DIALOGO_FRAGMENT);
                 dialogoFragment.show(getActivity().getSupportFragmentManager(), "dialogoSolicitud");
             }
-        });*/
+        });
         //cuando cargue la vista se deben de cargar todas las solicitudes y guardar los id en un arreglo y
         connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
